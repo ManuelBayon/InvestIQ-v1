@@ -1,0 +1,19 @@
+import pandas as pd
+
+from backtest_engine.common.types import ExecutionLogEntry
+from export_engine.formatters.components.ExecutionLogEntryToDataFrame import BacktestDataFrameFormatter
+from export_engine.registries.components.backtest import BacktestExportRegistry
+from export_engine.registries.config import ExportKey
+from export_engine.sinks.components.file_batch_sink import FileBatchSink
+from export_engine.writers_core.components.ExcelWriterCore import ExcelWriterCore
+
+@BacktestExportRegistry.bind(
+    key=ExportKey.EXCEL,
+    raw=list[ExecutionLogEntry],
+    formatted=pd.DataFrame,
+    encoded=bytes
+)
+class BacktestExcelPipeline:
+    formatter_cls = BacktestDataFrameFormatter
+    writer_core_cls = ExcelWriterCore
+    sink_cls = FileBatchSink
