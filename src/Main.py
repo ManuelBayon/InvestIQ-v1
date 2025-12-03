@@ -37,7 +37,7 @@ def main() -> None:
         symbol_id=InstrumentID.from_enum(FutureCME.MNQ)
     )
     request_settings = IBKRRequestSettings(
-        duration="10 D",
+        duration="2 D",
         bar_size_setting=BarSize.ONE_MINUTE
     )
     tws_connection = TWSConnection(
