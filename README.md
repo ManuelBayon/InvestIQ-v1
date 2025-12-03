@@ -19,7 +19,7 @@ src/
 
 ```
 
-# 2. Pipeline de traitement
+
 # 3. Installation (Windows)
 
 Ce guide permet d’installer et d’exécuter _InvestIQ-v1_ dans un environnement isolé et reproductible.
@@ -97,7 +97,8 @@ Deux versions existent :
 > 1. Créer un dossier `C:\TWS`
 > 2. Lors de l’installation, sélectionner ce dossier comme destination.
 
-![[choix dossier installation.png]]
+
+![dossier installation](pictures/choix_dossier_installation.png)
 
 ---
 ## 4.3 Première connexion (Trading Simulé)
@@ -106,7 +107,7 @@ Deux versions existent :
 2. Se connecter en **Trading Simulé**  
 3. Attendre que l’interface se charge complètement
 
-![[1 - Connexion TWS.png]]
+![dossier installation](pictures/connexion_tws.png)
 
 ---
 ## 4.4. Configuration API requise
@@ -120,7 +121,7 @@ Dans TWS pour trouver les paramètres de l'API suivre les instructions suivantes
 2. Décocher : **Read-Only API**
 3. Vérifier le port : **7497** (compte simulé)
 
-![[TWS Parametres API.png]]
+![TWS Parametres API](pictures/tws_param_api.png)
 
 > [!warning] Ne pas fermer TWS.
 
@@ -145,9 +146,14 @@ Le moteur va :
 
 ## 5.2 Exemple d'utilisation
 
-![[Exemple logs console.png]]
+Logs console : 
 
-![[Exemple logs excel.png]]
+![Exemple logs console](pictures/exemple_logs_console.png)
+
+Résultats Excel des positions prises en fonction de la stratégie et de la configuration du moteur :
+
+![exemple_logs_excel](pictures/exemple_logs_excel.png)
+
 ---
 # 6. Licence / disclaimers
 
