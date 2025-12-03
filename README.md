@@ -92,10 +92,10 @@ Deux versions existent :
 
 ### Étape 2 - Créer un dossier d'installation propre
 
->[!warning] Par défaut l'installateur de TWS choisis le dossier **C:\Jts**.
+⚠️ **Attention — par défaut, l’installateur de TWS choisit le dossier `C:\Jts`.**
 
-> 1. Créer un dossier `C:\TWS`
-> 2. Lors de l’installation, sélectionner ce dossier comme destination.
+1. Créer un dossier `C:\TWS`
+2. Lors de l’installation, sélectionner ce dossier comme destination.
 
 
 ![dossier installation](pictures/choix_dossier_installation.png)
@@ -123,7 +123,7 @@ Dans TWS pour trouver les paramètres de l'API suivre les instructions suivantes
 
 ![TWS Parametres API](pictures/tws_param_api.png)
 
-> [!warning] Ne pas fermer TWS.
+⚠️ **Ne PAS fermer TWS**
 
 ---
 # 5. Démarrage rapide (Quick Start)
