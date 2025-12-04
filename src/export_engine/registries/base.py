@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Callable
+from typing import Callable, ClassVar, Any
 
 from export_engine.formatters.base_batch_formatter import BatchFormatter
 from export_engine.registries.config import ExportKey, BatchExportBinding
@@ -11,7 +11,9 @@ class BaseBatchExportRegistry[KeyT: ExportKey, RawT, FormattedT, EncodedT](ABC):
     """
     Abstract registries enforcing a consistent API for all export binding registries.
     """
-    _registry: dict[KeyT, BatchExportBinding[RawT, FormattedT, EncodedT]]
+    _registry: ClassVar[
+        dict[Any, Any]
+    ] = {}
 
     def __init_subclass__(cls, **kwargs: object) -> None:
         """
@@ -44,9 +46,6 @@ class BaseBatchExportRegistry[KeyT: ExportKey, RawT, FormattedT, EncodedT](ABC):
             cls,
             *,
             key: KeyT,
-            raw: type[RawT],
-            formatted: type[FormattedT],
-            encoded: type[EncodedT],
 
     ) -> Callable[[type], type]:
         """
@@ -56,15 +55,6 @@ class BaseBatchExportRegistry[KeyT: ExportKey, RawT, FormattedT, EncodedT](ABC):
         ----------
         key : ExportKey
             Logical identifier of the export pipeline.
-        raw : type[RawT]
-            Raw data domain type (input of the formatter).
-            Used only for static type resolution — not at runtime.
-        formatted : type[FormattedT]
-            Formatted data type (output of formatter, input of writer_core).
-            Used for static validation of component compatibility.
-        encoded : type[EncodedT]
-            Encoded artifact type (output of writer_core, input of sink).
-            Used for static type binding; never used at runtime.
         """
 
         def decorator(binding_cls: type) -> type:

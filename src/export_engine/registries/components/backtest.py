@@ -1,16 +1,23 @@
+from typing import ClassVar
+
 from export_engine.registries.base import BaseBatchExportRegistry
 from export_engine.registries.config import ExportKey, BatchExportBinding
 
 
-class BacktestExportRegistry[RawT, FormattedT, EncodedT](BaseBatchExportRegistry[ExportKey,RawT, FormattedT, EncodedT]):
+class BacktestExportRegistry(BaseBatchExportRegistry[ExportKey,object, object, object]
+):
     """
     Concrete registry for backtest export pipelines.
     """
+    _registry: ClassVar[
+        dict[ExportKey, BatchExportBinding[object, object, object]]
+    ] = {}
+
     @classmethod
     def register(
             cls,
             key: ExportKey,
-            binding: BatchExportBinding[RawT, FormattedT, EncodedT]
+            binding: BatchExportBinding[object, object, object]
     ) -> None:
         if key in cls._registry:
             raise KeyError(f"{key.value} already registered in {cls.__name__}")
@@ -20,7 +27,7 @@ class BacktestExportRegistry[RawT, FormattedT, EncodedT](BaseBatchExportRegistry
     def get(
             cls,
             key: ExportKey
-    ) -> BatchExportBinding[RawT, FormattedT, EncodedT]:
+    ) -> BatchExportBinding[object, object, object]:
         try:
             return cls._registry[key]
         except KeyError:

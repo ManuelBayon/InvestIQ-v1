@@ -54,7 +54,7 @@ class ExportServiceFactory:
         self._logger.debug(f"Building export service for {key.value}")
 
         # Step 1 - Retrieve the binding from the registry
-        binding: BatchExportBinding[RawT, FormattedT, EncodedT] = BacktestExportRegistry.get(key)
+        binding: BatchExportBinding[object, object, object] = BacktestExportRegistry.get(key)
 
         # Step 2 - Instantiate components
         formatter: BatchFormatter[RawT, FormattedT] = self._instantiate(
