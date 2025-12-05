@@ -4,12 +4,16 @@ from strategy_engine.AbstractStrategy import AbstractStrategy
 
 class MovingAverageCrossStrategy(AbstractStrategy):
 
-    def __init__(self, fast_window: int, slow_window:int):
+    def __init__(
+            self,
+            fast_window: int,
+            slow_window:int = 50
+    ):
         self.fast_window= fast_window
         self.slow_window= slow_window
 
     def generate_signals(self, data: pd.DataFrame) -> pd.DataFrame:
-        df = data.copy()
+        df: pd.DataFrame = data
 
         df['ma_fast']=df['close'].rolling(window=self.fast_window).mean()
         df['ma_slow'] = df['close'].rolling(window=self.slow_window).mean()

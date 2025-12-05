@@ -659,3 +659,4 @@ Le moteur applique automatiquement :
 - validation,
 - persistence atomique,
 - gestion des cycles de vie et erreurs.
+

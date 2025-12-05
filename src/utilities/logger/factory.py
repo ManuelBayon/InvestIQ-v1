@@ -3,7 +3,6 @@ from typing import Any
 
 from utilities.logger.access import get_contextual_logger
 
-
 class LoggerFactory:
 
     def __init__(

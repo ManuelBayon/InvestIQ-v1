@@ -59,7 +59,7 @@ class BacktestEngine:
         )
         export_service = factory.create_backtest_batch_export_service(ExportKey.EXCEL)
         export_service.export(self.portfolio.execution_log)
-        print(f"Realized PnL : {self.portfolio.get_realized_pnl()}")
+        print(f"Realized PnL : {self.portfolio.realized_pnl}")
 
     def run(self) -> None:
         self._load_data()

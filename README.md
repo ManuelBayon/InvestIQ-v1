@@ -126,7 +126,167 @@ Dans TWS pour trouver les paramètres de l'API suivre les instructions suivantes
 ⚠️ **Ne PAS fermer TWS**
 
 ---
-# 5. Démarrage rapide (Quick Start)
+
+
+
+# 5. Création d’une stratégie personnalisée
+
+Pour créer une nouvelle stratégie dans **InvestIQ-v1**, rendez-vous dans :
+```powershell
+./src/strategy_engine/
+```
+
+Vous y trouverez la classe abstraite `AbstractBaseStrategy`, qui définit l’interface que toutes les stratégies doivent respecter.
+
+Une stratégie doit **hériter** de `AbstractBaseStrategy` et **implémenter** la méthode suivante :
+```powershell
+generate_signals(self, data: pd.DataFrame) -> pd.DataFrame
+```
+
+Cette méthode reçoit les données de marché (OHLC + timestamp) et doit retourner un `DataFrame` contenant au minimum :
+
+- `timestamp`
+- `close` (ou autre prix utilisé)
+- `target_position` (position cible souhaitée, utilisée par le moteur FIFO)
+
+---
+## 5.1 Exemple complet pas à pas
+
+### Étape 1 — Créer un fichier `exemple.py`
+
+Dans :
+``` powershell
+./src/strategy_engine
+```
+
+Créer un fichier nommé comme vous le souhaitez, par exemple :
+``` powershell
+exemple.py
+```
+
+---
+### Étape 2 : Créer la classe de stratégie
+
+Voici le squelette minimal d'une stratégie :
+
+```python
+from strategy_engine.abstract_strategy import AbstractBaseStrategy
+import pandas as pd
+
+
+class MaStrategie(AbstractBaseStrategy):
+
+    def __init__(
+        self,
+        param_1: int,
+        param_2: float = 0.025
+    ):
+        """
+        Exemple d'initialisation de paramètres de stratégie.
+        param_1 : entier (ex : période courte)
+        param_2 : flottant (ex : seuil)
+        """
+        self.param_1 = param_1
+        self.param_2 = param_2
+```
+
+---
+### Étape 3 : Implémenter la méthode `generate_signals`
+
+La signature **doit être strictement** : 
+
+```python
+def generate_signals(self, data: pd.DataFrame) -> pd.DataFrame:
+```
+
+Et vous devez retourner un `DataFrame` contenant **au minimum** :
+
+```python
+["timestamp", "close", "target_position"]
+```
+
+> [!NOTE]
+Le moteur utilise par défaut `close` pour le calcul du PnL.  
+Voir ci-dessous pour changer le type de prix.
+
+---
+
+### 🔧 Modifier le type de prix utilisé pour le PnL
+
+Pour utiliser `open`, `high`, `low` ou tout autre prix :
+
+1. Aller dans :
+``` powershell
+./src/backtest_engine/portfolio/portfolio.py
+```
+
+2. Trouver la méthode `generate_and_apply_fifo_operations_from_signals`
+
+3. Modifier :
+
+```python
+price = row.close
+```
+
+en : 
+``` python
+price = row.open  # ou row.high / row.low
+```
+
+---
+### Étape 4 : Exemple final : stratégie `BollingerMeanReversion`
+
+Objectif :  
+- Acheter quand le prix touche la bande basse.  
+-  Vendre quand il touche la bande haute.  
+-  Rester neutre au milieu.
+
+```python
+from strategy_engine.abstract_strategy import AbstractBaseStrategy
+import pandas as pd
+
+
+class BollingerMeanReversionStrategy(AbstractBaseStrategy):
+
+    def __init__(
+        self,
+        window: int = 20,
+        num_std: float = 2.0
+    ):
+        """
+        Stratégie de retour à la moyenne basée sur les bandes de Bollinger.
+        - window  : taille de la fenêtre mobile
+        - num_std : nombre d'écarts-types pour les bandes
+        """
+        self.window = window
+        self.num_std = num_std
+
+    def generate_signals(self, data: pd.DataFrame) -> pd.DataFrame:
+        df = data.copy()
+
+        # Bande centrale : moyenne mobile
+        df["middle"] = df["close"].rolling(self.window).mean()
+
+        # Écart-type
+        df["std"] = df["close"].rolling(self.window).std()
+
+        # Bandes de Bollinger
+        df["upper"] = df["middle"] + self.num_std * df["std"]
+        df["lower"] = df["middle"] - self.num_std * df["std"]
+
+        # Initialisation de la position cible
+        df["target_position"] = 0
+
+        # Règles :
+        df.loc[df["close"] < df["lower"], "target_position"] = +1   # acheter
+        df.loc[df["close"] > df["upper"], "target_position"] = -1   # vendre
+
+        # Retour au format attendu
+        return df[["timestamp", "close", "target_position"]]
+```
+
+
+# . Démarrage rapide (Quick Start)
 
 ## 5.1 Lancement de l'application 
 
@@ -155,7 +315,8 @@ Résultats Excel des positions prises en fonction de la stratégie et de la conf
 ![exemple_logs_excel](pictures/exemple_logs_excel.png)
 
 ---
-# 6. Licence / disclaimers
+
+# . Licence / disclaimers
 
 - Ce projet est fourni à des fins éducatives. 
 - Aucune garantie n’est donnée pour l’utilisation en trading réel.
