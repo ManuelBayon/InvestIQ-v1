@@ -211,7 +211,7 @@ Voir ci-dessous pour changer le type de prix.
 
 ---
 
-### 🔧 Modifier le type de prix utilisé pour le PnL
+### Étape 3 (bis): Modifier le type de prix utilisé pour le PnL
 
 Pour utiliser `open`, `high`, `low` ou tout autre prix :
 
@@ -285,8 +285,7 @@ class BollingerMeanReversionStrategy(AbstractBaseStrategy):
         return df[["timestamp", "close", "target_position"]]
 ```
 
-
-# . Démarrage rapide (Quick Start)
+# 6. Démarrage rapide (Quick Start)
 
 ## 5.1 Lancement de l'application 
 
@@ -316,7 +315,7 @@ Résultats Excel des positions prises en fonction de la stratégie et de la conf
 
 ---
 
-# . Licence / disclaimers
+# 7. Licence / disclaimers
 
 - Ce projet est fourni à des fins éducatives. 
 - Aucune garantie n’est donnée pour l’utilisation en trading réel.
