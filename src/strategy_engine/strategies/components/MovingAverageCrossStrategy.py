@@ -25,7 +25,7 @@ class MovingAverageCrossStrategy(AbstractStrategy):
         ma_fast= close.rolling(window=self.fast_window).mean()
         ma_slow = close.rolling(window=self.slow_window).mean()
 
-        raw_target = (ma_fast > ma_slow) - (ma_fast < ma_slow)
+        raw_target = (ma_fast > ma_slow).astype(int) - (ma_fast < ma_slow).astype(int)
 
         return StrategyOutput(
             timestamp=ts,
