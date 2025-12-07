@@ -1,7 +1,4 @@
-from pathlib import Path
-
 from backtest_engine.portfolio.portfolio import Portfolio
-from backtest_engine.portfolio.protocol import PortfolioProtocol
 from backtest_engine.transition_engine.engine import TransitionEngine
 from config.AppSettings import app_settings
 
@@ -9,7 +6,6 @@ from export_engine.factory import ExportServiceFactory
 from export_engine.registries.config import ExportKey, ExportOptions
 
 from historical_data_engine.HistoricalDataEngine import HistoricalDataEngine
-from strategy_engine.AbstractStrategy import AbstractStrategy
 from strategy_engine.strategy_orchestrator import StrategyOrchestrator
 from utilities.logger.factory import LoggerFactory
 

@@ -12,8 +12,8 @@ from historical_data_engine.source.IBKRDataSource import IBKRDataSource
 from historical_data_engine.instruments.ContFutureSettings import ContFutureSettings
 from historical_data_engine.instruments.InstrumentID import InstrumentID
 from historical_data_engine.request.IBKRRequestSettings import IBKRRequestSettings
-from strategy_engine.filters.stop_take import StopTakeFilter
-from strategy_engine.strategies.BollingerMeanReversionStrategy import BollingerMeanReversionStrategy
+from strategy_engine.filters.stop_take import StaticStopLossFilter
+from strategy_engine.strategies.components.MovingAverageCrossStrategy import MovingAverageCrossStrategy
 from strategy_engine.strategy_orchestrator import StrategyOrchestrator
 
 from utilities.logger.factory import LoggerFactory
@@ -38,8 +38,8 @@ def main() -> None:
         symbol_id=InstrumentID.from_enum(FutureCME.MNQ)
     )
     request_settings = IBKRRequestSettings(
-        duration="10 D",
-        bar_size_setting=BarSize.ONE_MINUTE
+        duration="200 D",
+        bar_size_setting=BarSize.ONE_HOUR
     )
     tws_connection = TWSConnection(
         logger=logger_factory.child("TWS Connection").get(),
@@ -53,13 +53,12 @@ def main() -> None:
         instrument_settings=instrument_settings,
         request_settings=request_settings,
         data_source=data_source
-
     )
 
     # 4. Strategy engine configuration
-    strategy = BollingerMeanReversionStrategy()
+    strategy = MovingAverageCrossStrategy()
     orchestrator = StrategyOrchestrator(strategy=strategy)
-    orchestrator.add_filter(StopTakeFilter())
+    orchestrator.add_filter(StaticStopLossFilter())
 
     # 5. Backtest engine configuration
     transition_engine: TransitionEngine = TransitionEngine(logger_factory=logger_factory)
