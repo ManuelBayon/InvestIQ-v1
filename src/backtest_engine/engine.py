@@ -10,6 +10,7 @@ from export_engine.registries.config import ExportKey, ExportOptions
 
 from historical_data_engine.HistoricalDataEngine import HistoricalDataEngine
 from strategy_engine.AbstractStrategy import AbstractStrategy
+from strategy_engine.strategy_orchestrator import StrategyOrchestrator
 from utilities.logger.factory import LoggerFactory
 
 
@@ -19,12 +20,12 @@ class BacktestEngine:
             self,
             logger_factory: LoggerFactory,
             hist_data_engine: HistoricalDataEngine,
-            strategy: AbstractStrategy,
+            orchestrator: StrategyOrchestrator,
             transition_engine: TransitionEngine
     ):
         self._logger_factory = logger_factory.child("Backtest Engine")
         self._hist_data_engine = hist_data_engine
-        self._strategy= strategy
+        self._orchestrator= orchestrator
         self._transition_engine = transition_engine
         self.portfolio: Portfolio = Portfolio(
             logger_factory=self._logger_factory.child("Portfolio"),
@@ -37,7 +38,7 @@ class BacktestEngine:
         self._data = self._hist_data_engine.load_data()
 
     def _generate_signals(self) -> None:
-        self._signal_df= self._strategy.generate_signals(data=self._data)
+        self._signal_df= self._orchestrator.run(data=self._data)
 
     def _run_portfolio(self) -> None:
         self.portfolio.generate_and_apply_fifo_operations_from_signals(

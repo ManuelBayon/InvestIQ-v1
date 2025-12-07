@@ -136,9 +136,9 @@ Pour créer une nouvelle stratégie dans **InvestIQ-v1**, rendez-vous dans :
 ./src/strategy_engine/
 ```
 
-Vous y trouverez la classe abstraite `AbstractBaseStrategy`, qui définit l’interface que toutes les stratégies doivent respecter.
+Vous y trouverez la classe abstraite `AbstractStrategy`, qui définit l’interface que toutes les stratégies doivent respecter.
 
-Une stratégie doit **hériter** de `AbstractBaseStrategy` et **implémenter** la méthode suivante :
+Une stratégie doit **hériter** de `AbstractStrategy` et **implémenter** la méthode suivante :
 ```powershell
 generate_signals(self, data: pd.DataFrame) -> pd.DataFrame
 ```
@@ -170,11 +170,11 @@ exemple.py
 Voici le squelette minimal d'une stratégie :
 
 ```python
-from strategy_engine.abstract_strategy import AbstractBaseStrategy
+from strategy_engine.AbstractStrategy import AbstractStrategy
 import pandas as pd
 
 
-class MaStrategie(AbstractBaseStrategy):
+class MaStrategie(AbstractStrategy):
 
     def __init__(
         self,
@@ -242,11 +242,11 @@ Objectif :
 -  Rester neutre au milieu.
 
 ```python
-from strategy_engine.abstract_strategy import AbstractBaseStrategy
+from strategy_engine.AbstractStrategy import AbstractStrategy
 import pandas as pd
 
 
-class BollingerMeanReversionStrategy(AbstractBaseStrategy):
+class BollingerMeanReversionStrategy(AbstractStrategy):
 
     def __init__(
         self,
