@@ -1,48 +1,50 @@
 Copyright (c) 2025 Manuel BAYON. All rights reserved.
 
-1. Objet
+1. Purpose
 
-Le présent document constitue la licence d'utilisation du logiciel InvestIQ.
-Le logiciel est rendu accessible en lecture ("source-available") afin de permettre l’étude, la compréhension et l’évaluation de son architecture.
+This document constitutes the license for the InvestIQ software.
+The software is made available for reading ("source-available") to allow for the study, understanding, and evaluation of its architecture.
 
-2. Autorisations
+2. Permissions
 
-Sous réserve du respect intégral de cette licence, l’utilisateur est autorisé à :
-1. Lire, consulter et étudier le code source d’InvestIQ.
-2. Télécharger le code pour une inspection locale.
-3. Utiliser InvestIQ uniquement à des fins non commerciales, incluant :
-    - apprentissage,
-    - recherche personnelle,
-    - projets universitaires,
-    - expérimentation non destinée à un usage professionnel.
+Subject to full compliance with this license, the user is authorized to:
 
-Aucune autre utilisation n’est autorisée.
+1. Read, view, and study the InvestIQ source code.
+2. Download the code for local inspection.
+3. Use InvestIQ solely for non-commercial purposes, including:
+- learning,
+- personal research,
+- academic projects,
+- experimentation not intended for professional use.
+
+No other use is permitted.
 
 3. Restrictions
 
-Sauf accord écrit explicite de l’auteur, il est strictement interdit de :
+Unless expressly agreed to in writing by the author, it is strictly prohibited to:
 
-1. Utiliser le logiciel à des fins commerciales, y compris :
-    - trading réel,
-    - gestion d’actifs,
-    - prestation de service,
-    - intégration dans un produit ou service commercial.
+1. Use the software for commercial purposes, including:
+- live trading,
+- asset management,
+- service provision,
+- integration into a commercial product or service.
 
-2. Modifier le logiciel, créer des œuvres dérivées ou redistribuer toute version modifiée.
-3. Redistribuer le logiciel, sauf sous sa forme originale, non modifiée et accompagnée intégralement de la présente licence.
-4. Intégrer InvestIQ dans une infrastructure logicielle, un produit ou un service tiers, même non commercial.
+2. Modify the software, create derivative works, or redistribute any modified version.
+3. Redistribute the software except in its original, unmodified form and accompanied in its entirety by this license.
+4. Integrate InvestIQ into any third-party software infrastructure, product, or service, even if non-commercial.
 
-4. Propriété intellectuelle
+4. Intellectual Property
 
-L’ensemble du code source, de la documentation, des concepts d’architecture, des designs d’API et des choix d’implémentation constitue une œuvre protégée par le droit d’auteur.
-Tous droits non expressément accordés par cette licence sont réservés.
+All source code, documentation, architectural concepts, API designs, and implementation choices are protected by copyright.
+All rights not expressly granted by this license are reserved.
 
-5. Absence de garantie
+5. No Warranty
 
-Le logiciel est fourni "en l’état", sans aucune garantie, explicite ou implicite, concernant notamment son fonctionnement, sa fiabilité, son exactitude ou son adéquation à un usage particulier.
-L’auteur ne pourra être tenu responsable de tout dommage résultant de l’utilisation ou de l’impossibilité d’utiliser le logiciel.
+The software is provided "as is," without any warranty, express or implied, including but not limited to warranties of performance, reliability, accuracy, or fitness for a particular purpose.
+The author shall not be liable for any damages arising from the use of, or inability to use, the software.
 
 6. Contact
 
-Pour toute demande d’autorisation commerciale ou de licence spécifique :
+For any commercial authorization or specific license requests:
+
 (manuel — manuel_bayon@outlook.fr)
