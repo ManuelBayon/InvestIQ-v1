@@ -4,14 +4,11 @@ Copyright (c) 2025 Manuel BAYON. All rights reserved.
 ------------------------------------------------------------
 
 1. Purpose
-
 This document constitutes the license for the InvestIQ software.
 The software is made available for reading ("source-available") to allow for the study, understanding, and evaluation of its architecture.
 
 2. Permissions
-
 Subject to full compliance with this license, the user is authorized to:
-
 1. Read, view, and study the InvestIQ source code.
 2. Download the code for local inspection.
 3. Use InvestIQ solely for non-commercial purposes, including:
@@ -19,35 +16,26 @@ Subject to full compliance with this license, the user is authorized to:
 - personal research,
 - academic projects,
 - experimentation not intended for professional use.
-
 No other use is permitted.
 
 3. Restrictions
-
 Unless expressly agreed to in writing by the author, it is strictly prohibited to:
-
 1. Use the software for commercial purposes, including:
 - live trading,
 - asset management,
 - service provision,
 - integration into a commercial product or service.
-
 2. Modify the software, create derivative works, or redistribute any modified version.
 3. Redistribute the software except in its original, unmodified form and accompanied in its entirety by this license.
 4. Integrate InvestIQ into any third-party software infrastructure, product, or service, even if non-commercial.
 
 4. Intellectual Property
-
 All source code, documentation, architectural concepts, API designs, and implementation choices are protected by copyright.
 All rights not expressly granted by this license are reserved.
 
 5. No Warranty
-
 The software is provided "as is," without any warranty, express or implied, including but not limited to warranties of performance, reliability, accuracy, or fitness for a particular purpose.
 The author shall not be liable for any damages arising from the use of, or inability to use, the software.
 
 6. Contact
-
-For any commercial authorization or specific license requests:
-
-(manuel — manuel_bayon@outlook.fr)
+For any commercial authorization or specific license requests: Manuel BAYON - manuel_bayon@outlook.fr
