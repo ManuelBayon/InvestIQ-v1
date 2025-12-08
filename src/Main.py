@@ -12,7 +12,7 @@ from historical_data_engine.source.IBKRDataSource import IBKRDataSource
 from historical_data_engine.instruments.ContFutureSettings import ContFutureSettings
 from historical_data_engine.instruments.InstrumentID import InstrumentID
 from historical_data_engine.request.IBKRRequestSettings import IBKRRequestSettings
-from strategy_engine.filters.stop_take import StaticStopLossFilter
+from strategy_engine.filters.components.stop_loss import StaticStopLossFilter
 from strategy_engine.strategies.components.MovingAverageCrossStrategy import MovingAverageCrossStrategy
 from strategy_engine.strategy_orchestrator import StrategyOrchestrator
 

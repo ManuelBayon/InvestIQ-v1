@@ -1,7 +1,7 @@
 import pandas as pd
 
 from strategy_engine.strategies.abstract_strategy import AbstractStrategy
-from strategy_engine.strategies.contracts import StrategyInput, StrategyOutput, SignalPrice
+from strategy_engine.strategies.contracts import StrategyInput, StrategyOutput, MarketField
 
 
 class MovingAverageCrossStrategy(AbstractStrategy):
@@ -20,7 +20,7 @@ class MovingAverageCrossStrategy(AbstractStrategy):
     ) -> StrategyOutput:
 
         ts = input_.timestamp
-        close = input_.close
+        close = input_.data[MarketField.CLOSE]
 
         ma_fast= close.rolling(window=self.fast_window).mean()
         ma_slow = close.rolling(window=self.slow_window).mean()
@@ -30,10 +30,10 @@ class MovingAverageCrossStrategy(AbstractStrategy):
         return StrategyOutput(
             timestamp=ts,
             raw_target=raw_target,
-            signal_price=SignalPrice.CLOSE,
+            signal_price=MarketField.CLOSE,
             signal_price_series=close,
-            diagnostics=pd.DataFrame({
-                "ma_fast": ma_fast,
-                "ma_slow": ma_slow,
-            })
+            diagnostics={
+                "ma_fast": pd.Series(ma_fast),
+                "ma_slow": pd.Series(ma_slow),
+            }
         )

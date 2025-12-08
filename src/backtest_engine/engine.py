@@ -1,3 +1,5 @@
+import pandas as pd
+
 from backtest_engine.portfolio.portfolio import Portfolio
 from backtest_engine.transition_engine.engine import TransitionEngine
 from config.AppSettings import app_settings
@@ -6,6 +8,7 @@ from export_engine.factory import ExportServiceFactory
 from export_engine.registries.config import ExportKey, ExportOptions
 
 from historical_data_engine.HistoricalDataEngine import HistoricalDataEngine
+from strategy_engine.strategies.contracts import OrchestratorInput
 from strategy_engine.strategy_orchestrator import StrategyOrchestrator
 from utilities.logger.factory import LoggerFactory
 
@@ -28,13 +31,17 @@ class BacktestEngine:
             transition_engine=self._transition_engine,
             initial_cash=100_000
         )
-
+        self._data : pd.DataFrame
 
     def _load_data(self) -> None:
         self._data = self._hist_data_engine.load_data()
 
     def _generate_signals(self) -> None:
-        self._signal_df= self._orchestrator.run(data=self._data)
+        self._signal_df= self._orchestrator.run(
+            input_= OrchestratorInput(
+                timestamp=
+            )
+        )
 
     def _run_portfolio(self) -> None:
         self.portfolio.generate_and_apply_fifo_operations_from_signals(

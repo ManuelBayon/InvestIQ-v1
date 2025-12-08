@@ -18,11 +18,3 @@ def reorder_columns(df: pd.DataFrame) -> pd.DataFrame:
     new_order = ["timestamp", "source_timezone"] + others
     return df[new_order]
 
-def unify_timestamp_column(df: pd.DataFrame) -> pd.DataFrame:
-    possible_names = ["date", "Date", "timestamp", "time", "datetime", "Datetime"]
-    for name in possible_names:
-        if name in df.columns:
-            df = df.rename(columns={name: "timestamp"})
-            return df
-    raise KeyError("No column with a valid timestamp label in DataFrame.")
-
