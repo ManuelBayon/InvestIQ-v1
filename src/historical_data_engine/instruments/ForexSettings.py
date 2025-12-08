@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from ib_insync import Forex
 
 from historical_data_engine.instruments.AbstractInstrumentSettings import InstrumentSettings
-from backtest_engine.Enums import Exchange, AssetType, WhatToShow
+from historical_data_engine.enums import Exchange, AssetType, WhatToShow
 from historical_data_engine.instruments.InstrumentID import InstrumentID
 
 

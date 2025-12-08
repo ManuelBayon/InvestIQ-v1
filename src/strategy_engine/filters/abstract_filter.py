@@ -6,7 +6,8 @@ from strategy_engine.strategies.contracts import FilterOutput, FilterInput, Comp
 
 @dataclass(frozen=True)
 class FilterMetadata:
-    component_type: ComponentType.FILTER
+    filter_uuid: str
+    created_at: str
     name: str
     version: str
     description: str

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from ib_insync import Stock
 
 from historical_data_engine.instruments.AbstractInstrumentSettings import InstrumentSettings
-from backtest_engine.Enums import Exchange, Currency, AssetType, WhatToShow
+from historical_data_engine.enums import Exchange, Currency, AssetType, WhatToShow
 from historical_data_engine.instruments.InstrumentID import InstrumentID
 
 

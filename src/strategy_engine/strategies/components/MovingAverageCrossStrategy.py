@@ -1,6 +1,9 @@
+import datetime
+import uuid
+
 import pandas as pd
 
-from strategy_engine.strategies.abstract_strategy import AbstractStrategy
+from strategy_engine.strategies.abstract_strategy import AbstractStrategy, StrategyMetadata
 from strategy_engine.strategies.contracts import StrategyInput, StrategyOutput, MarketField
 
 
@@ -13,11 +16,29 @@ class MovingAverageCrossStrategy(AbstractStrategy):
     ):
         self.fast_window= fast_window
         self.slow_window= slow_window
+        self.metadata = StrategyMetadata(
+            strategy_uuid=str(uuid.uuid4()),
+            created_at=datetime.datetime.now().isoformat(),
+            name="MovingAverageCrossStrategy",
+            version="1.0.0",
+            description="Simple moving-average crossover strategy.",
+            parameters= {
+                "fast_window": fast_window,
+                "slow_window": slow_window
+            },
+            required_fields=[MarketField.CLOSE],
+            produced_features=["ma_fast", "ma_slow"],
+            price_type=MarketField.CLOSE,
+        )
 
     def generate_raw_signals(
             self,
             input_ : StrategyInput
     ) -> StrategyOutput:
+
+        for field in self.metadata.required_fields:
+            if field not in input_.data:
+                raise KeyError(f"Missing required field: {field}")
 
         ts = input_.timestamp
         close = input_.data[MarketField.CLOSE]
@@ -30,10 +51,12 @@ class MovingAverageCrossStrategy(AbstractStrategy):
         return StrategyOutput(
             timestamp=ts,
             raw_target=raw_target,
-            signal_price=MarketField.CLOSE,
-            signal_price_series=close,
-            diagnostics={
-                "ma_fast": pd.Series(ma_fast),
-                "ma_slow": pd.Series(ma_slow),
-            }
+            price_type=MarketField.CLOSE,
+            price_serie=close,
+            metadata=self.metadata,
+            features={
+                "ma_fast": ma_fast,
+                "ma_slow": ma_slow,
+            },
+            diagnostics={}
         )

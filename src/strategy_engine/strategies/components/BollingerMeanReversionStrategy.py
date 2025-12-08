@@ -1,16 +1,12 @@
-from strategy_engine.strategies.abstract_strategy import AbstractStrategy, StrategyMetadata
-import pandas as pd
+import datetime
+import uuid
 
-from strategy_engine.strategies.contracts import StrategyInput, StrategyOutput, MarketField
+from strategy_engine.strategies.abstract_strategy import AbstractStrategy, StrategyMetadata
+
+from strategy_engine.strategies.contracts import StrategyInput, StrategyOutput, MarketField, ComponentType
 
 
 class BollingerMeanReversionStrategy(AbstractStrategy):
-
-    metadata = StrategyMetadata(
-        name="BollingerMeanReversion",
-        version="v1",
-        description="Mean reversion strategy using Bollinger bands."
-    )
 
     def __init__(
         self,
@@ -25,15 +21,32 @@ class BollingerMeanReversionStrategy(AbstractStrategy):
         self.sl_pct = sl_pct
         self.tp_pct = tp_pct
         self.cooldown = cooldown
-
-    @property
-    def name(self) -> str:
-        return "BollingerMeanReversion"
+        self.metadata = StrategyMetadata(
+            strategy_uuid=str(uuid.uuid4()),
+            created_at=datetime.datetime.now().isoformat(),
+            name="BollingerMeanReversion",
+            version="1.0.0",
+            description="Mean reversion strategy using Bollinger bands.",
+            parameters={
+                "window": window,
+                "num_std": num_std,
+                "sl_pct": sl_pct,
+                "tp_pct": tp_pct,
+                "cooldown": cooldown
+            },
+            required_fields=[MarketField.CLOSE],
+            produced_features=["std", "middle", "upper", "lower"],
+            price_type=MarketField.CLOSE
+        )
 
     def generate_raw_signals(
             self,
             input_ : StrategyInput
     ) -> StrategyOutput:
+
+        for field in self.metadata.required_fields:
+            if field not in input_.data:
+                raise KeyError(f"Missing required field: {field}")
 
         ts = input_.timestamp
         close = input_.data[MarketField.CLOSE]
@@ -48,12 +61,14 @@ class BollingerMeanReversionStrategy(AbstractStrategy):
         return StrategyOutput(
             timestamp=ts,
             raw_target=raw_target,
-            signal_price=MarketField.CLOSE,
-            signal_price_series=close,
-            diagnostics = {
-                "std": pd.Series(std),
-                "middle": pd.Series(middle),
-                "upper": pd.Series(upper),
-                "lower": pd.Series(lower),
+            price_type=MarketField.CLOSE,
+            price_serie=close,
+            metadata=self.metadata,
+            features={
+                "std": std,
+                "middle": middle,
+                "upper": upper,
+                "lower": lower,
             },
+            diagnostics = {},
         )

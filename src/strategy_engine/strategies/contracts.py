@@ -1,20 +1,20 @@
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum, auto
 
 import pandas as pd
 
 from strategy_engine.strategies.abstract_strategy import StrategyMetadata
 
-class Version(str, Enum):
+class Version(StrEnum):
     V1= "1.0"
 
-class MarketField(str, Enum):
+class MarketField(StrEnum):
     OPEN = "open"
     HIGH = "high"
     LOW = "low"
     CLOSE = "close"
 
-class ComponentType(str, Enum):
+class ComponentType(StrEnum):
     STRATEGY = "strategy"
     FILTER = "filter"
 
@@ -22,19 +22,19 @@ class ComponentType(str, Enum):
 class OrchestratorInput:
     timestamp: pd.Series
     data: dict[str, pd.Series]
-    extra: dict[str, object] | None = None
+    extra: dict[str, object] | None
 
 @dataclass(frozen=True)
 class StrategyInput:
     timestamp: pd.Series
     data: dict[str, pd.Series]
-    extra: dict [str, object]| None = None
+    extra: dict [str, object] | None
 
 @dataclass(frozen=True)
 class FilterInput:
     timestamp: pd.Series
     raw_target: pd.Series
-    features: dict[str, object] | None = None
+    features: dict[str, object] | None
 
 @dataclass(frozen=True)
 class StrategyOutput:
@@ -43,14 +43,14 @@ class StrategyOutput:
     price_type: MarketField
     price_serie: pd.Series
     metadata: StrategyMetadata
-    features: dict[str, object] | None = None
-    diagnostics: dict[str, object] | None = None
+    features: dict[str, object] | None
+    diagnostics: dict[str, object] | None
 
 @dataclass(frozen=True)
 class FilterOutput:
     timestamp: pd.Series
     target_position: pd.Series
-    diagnostics: dict[str, object] | None = None
+    diagnostics: dict[str, object] | None
     version: Version = Version.V1
 
 @dataclass(frozen=True)
@@ -59,5 +59,5 @@ class OrchestratorOutput:
     target_position: pd.Series
     price_type: MarketField
     price_serie: pd.Series
+    diagnostics : dict[str, object] | None
     version: Version = Version.V1
-    diagnostics : dict[str, object] | None = None

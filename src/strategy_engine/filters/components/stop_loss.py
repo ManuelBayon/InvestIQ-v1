@@ -1,4 +1,5 @@
-import pandas as pd
+import datetime
+import uuid
 
 from strategy_engine.filters.abstract_filter import AbstractFilter, FilterMetadata
 from strategy_engine.strategies.contracts import FilterInput, FilterOutput, MarketField
@@ -6,36 +7,57 @@ from strategy_engine.strategies.contracts import FilterInput, FilterOutput, Mark
 
 class StaticStopLossFilter(AbstractFilter):
 
-    metadata = FilterMetadata(
-        name='StaticStopLoss',
-        version="1.0",
-        description="Statical Stop loss in %",
-    )
-
     def __init__(
         self,
         sl_pct: float = 0.01,
-        tp_pct: float = 0.02,
         cooldown: int = 10
     ):
         self.sl_pct = sl_pct
-        self.tp_pct = tp_pct
         self.cooldown = cooldown
+        self.metadata = FilterMetadata(
+            filter_uuid=str(uuid.uuid4()),
+            created_at=datetime.datetime.now().isoformat(),
+            name="StaticStopLossFilter",
+            version="1.0.0",
+            description="Applies a static stop-loss based on a fixed percentage "
+                        "drop from the entry price. Does not trail. "
+                        "Each position receives a fixed stop price at entry.",
+            parameters={
+                "sl_pct": self.sl_pct,
+                "cooldown": self.cooldown,
+            },
+            required_fields=[
+                MarketField.CLOSE
+            ],
+            produced_features=[
+                "stop_price",
+                "sl_triggered",
+                "latent_pnl",
+            ],
+            diagnostics_schema=[
+                "stop_price",
+                "sl_triggered",
+                "latent_pnl",
+            ]
+        )
 
     def apply_filter(
             self,
             input_: FilterInput
     ) -> FilterOutput:
 
-        raw_target = input_.raw_target
-        price_series = input_.price_serie
+        for field in self.metadata.required_fields:
+            if field not in input_.features:
+                raise KeyError(f"Missing required field {field}")
 
-        # Code here Stop-loss filter
+        ts  = input_.timestamp
+        close = input_.features[MarketField.CLOSE]
+
+        # Compléter la stratégie de stop loss ici
         # ...
 
         return FilterOutput(
-            timestamp = input_.timestamp,
-            target_position = pd.Series(),
-            price_type = input_.price_type,
-            price_serie = input_.price_serie,
+            timestamp=input_.timestamp,
+            target_position= ,
+            diagnostics=,
         )
