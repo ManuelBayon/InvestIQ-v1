@@ -28,4 +28,6 @@ class HistoricalDataEngine:
         data = loader.load_historical_data(self.instrument, self.request)
         df = pd.DataFrame(data)
         self._data_source.disconnect()
+        if "date" in df.columns:
+            df = df.rename(columns={"date": "timestamp"})
         return df

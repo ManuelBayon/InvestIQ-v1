@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Iterable
 
 import pandas as pd
@@ -17,12 +18,33 @@ class BacktestDataFrameFormatter(BatchFormatter[ExecutionLogEntry, pd.DataFrame]
     ) -> None:
         super().__init__(logger)
 
+    @staticmethod
+    def format_utc_offset(ts: datetime) -> str:
+        """
+        Returns timezone as 'UTC+02:00', 'UTC-05:00', or 'naive'.
+        """
+        if ts.tzinfo is None:
+            return "naive"
+
+        offset = ts.utcoffset()
+        if offset is None:
+            return "naive"
+
+        total_min = int(offset.total_seconds() // 60)
+        sign = "+" if total_min >= 0 else "-"
+        hours, minutes = divmod(abs(total_min), 60)
+
+        return f"UTC{sign}{hours:02d}:{minutes:02d}"
+
     def _format(self, data: Iterable[ExecutionLogEntry]) -> pd.DataFrame:
         rows = []
         for entry in data:
+            ts = entry.timestamp
+            timezone_str = self.format_utc_offset(ts)
+            ts_naive = ts.replace(tzinfo=None)
             rows.append({
-                "timestamp": entry.timestamp.replace(tzinfo=None) if entry.timestamp.tzinfo else entry.timestamp,
-                "timezone": entry.timestamp.tzinfo.tzname(None) if entry.timestamp.tzinfo else "naive",
+                "timestamp": ts_naive,
+                "timezone": timezone_str,
                 "operation_type": entry.operation_type.name,
                 "side": entry.side.name,
                 "quantity": entry.quantity,

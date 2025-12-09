@@ -14,11 +14,9 @@ class StrategyOrchestrator:
         self._filters.append(filter_)
 
     def run(self, input_: OrchestratorInput) -> OrchestratorOutput:
-
         """
-        1. Executes the strategy. Returns raw signals.
+        Executes the strategy. Returns raw signals.
         """
-
         strategy_output: StrategyOutput = self._strategy.generate_raw_signals(
             StrategyInput(
                 timestamp=input_.timestamp,
@@ -26,7 +24,6 @@ class StrategyOrchestrator:
                 extra=input_.extra
             )
         )
-
         strategy_diagnostics = {
             strategy_output.metadata.name : strategy_output.diagnostics
         }
@@ -35,24 +32,20 @@ class StrategyOrchestrator:
         2. Applies sequentially all the filters, 
         the inputs of the filters are the output of the previous ones.
         """
-
         # Initialize input before filter loop
         filter_input = FilterInput(
             timestamp = strategy_output.timestamp,
             raw_target=strategy_output.raw_target,
             features=strategy_output.features
         )
-
         # Initialize output before filter loop
         filter_output = FilterOutput(
             timestamp=strategy_output.timestamp,
-            target_position=strategy_output.raw_target
-
+            target_position=strategy_output.raw_target,
+            diagnostics={}
         )
-
         # Initialize filter_diagnostics
         filter_diagnostics = []
-
         # Applying filters
         for f in self._filters:
             filter_output: FilterOutput = f.apply_filter(filter_input)

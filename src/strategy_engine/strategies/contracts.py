@@ -1,22 +1,9 @@
 from dataclasses import dataclass
-from enum import Enum, StrEnum, auto
 
 import pandas as pd
 
-from strategy_engine.strategies.abstract_strategy import StrategyMetadata
-
-class Version(StrEnum):
-    V1= "1.0"
-
-class MarketField(StrEnum):
-    OPEN = "open"
-    HIGH = "high"
-    LOW = "low"
-    CLOSE = "close"
-
-class ComponentType(StrEnum):
-    STRATEGY = "strategy"
-    FILTER = "filter"
+from strategy_engine.enums import MarketField, Version
+from strategy_engine.strategies.metadata import StrategyMetadata
 
 @dataclass(frozen=True)
 class OrchestratorInput:

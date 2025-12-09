@@ -1,20 +1,10 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 
-from strategy_engine.strategies.contracts import FilterOutput, FilterInput, ComponentType, MarketField
+from strategy_engine.filters.metadata import FilterMetadata
+from strategy_engine.strategies.contracts import FilterOutput, FilterInput
 
 
-@dataclass(frozen=True)
-class FilterMetadata:
-    filter_uuid: str
-    created_at: str
-    name: str
-    version: str
-    description: str
-    parameters: dict[str, object]
-    required_fields : list[str]
-    produced_features: list[str]
-    diagnostics_schema: list[str]
+
 
 class AbstractFilter(ABC):
 

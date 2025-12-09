@@ -8,7 +8,7 @@ from export_engine.factory import ExportServiceFactory
 from export_engine.registries.config import ExportKey, ExportOptions
 
 from historical_data_engine.HistoricalDataEngine import HistoricalDataEngine
-from strategy_engine.strategies.contracts import OrchestratorInput
+from strategy_engine.strategies.contracts import OrchestratorInput, OrchestratorOutput
 from strategy_engine.strategy_orchestrator import StrategyOrchestrator
 from utilities.logger.factory import LoggerFactory
 
@@ -32,20 +32,32 @@ class BacktestEngine:
             initial_cash=100_000
         )
         self._data : pd.DataFrame
+        self._orchestrator_output: OrchestratorOutput
 
     def _load_data(self) -> None:
         self._data = self._hist_data_engine.load_data()
 
     def _generate_signals(self) -> None:
-        self._signal_df= self._orchestrator.run(
+        self._orchestrator_output = self._orchestrator.run(
             input_= OrchestratorInput(
-                timestamp=
+                timestamp=self._data["timestamp"],
+                data={
+                    "open": self._data.open,
+                    "high": self._data.high,
+                    "low": self._data.low,
+                    "close": self._data.close,
+                },
+                extra={}
             )
         )
 
     def _run_portfolio(self) -> None:
         self.portfolio.generate_and_apply_fifo_operations_from_signals(
-            signals=self._signal_df,
+            signals=pd.DataFrame({
+                "timestamp": self._orchestrator_output.timestamp,
+                "close": self._orchestrator_output.price_serie,
+                "target_position": self._orchestrator_output.target_position
+            }),
         )
 
     def export_logs(self) -> None:
