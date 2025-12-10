@@ -1,3 +1,4 @@
+from backtest_engine.common.contracts import BacktestInput
 from backtest_engine.common.enums import FutureCME
 from backtest_engine.engine import BacktestEngine
 from backtest_engine.bootstrap import backtest_engine_bootstrap
@@ -13,7 +14,7 @@ from historical_data_engine.instruments.ContFutureSettings import ContFutureSett
 from historical_data_engine.instruments.InstrumentID import InstrumentID
 from historical_data_engine.request.IBKRRequestSettings import IBKRRequestSettings
 from strategy_engine.strategies.components.MovingAverageCrossStrategy import MovingAverageCrossStrategy
-from strategy_engine.strategy_orchestrator import StrategyOrchestrator
+from strategy_engine.orchestrator.orchestrator import StrategyOrchestrator
 
 from utilities.logger.factory import LoggerFactory
 from utilities.logger.setup import init_base_logger
@@ -31,7 +32,7 @@ def main() -> None:
     backtest_engine_bootstrap(logger=logger_factory.child("BacktestEngine Bootstrap").get())
     export_engine_bootstrap(logger=logger_factory.child("ExportEngine Bootstrap").get())
 
-    # 3. Historical data engine configuration
+    # 3. Historical data engine configuration and request
     instrument_settings = ContFutureSettings(
         symbol=FutureCME.MNQ.value,
         symbol_id=InstrumentID.from_enum(FutureCME.MNQ)
@@ -53,6 +54,7 @@ def main() -> None:
         request_settings=request_settings,
         data_source=data_source
     )
+    data = hist_data_engine.load_data()
 
     # 4. Strategy engine configuration
     strategy = MovingAverageCrossStrategy()
@@ -62,13 +64,23 @@ def main() -> None:
     transition_engine: TransitionEngine = TransitionEngine(logger_factory=logger_factory)
     backtest_engine: BacktestEngine = BacktestEngine(
         logger_factory=logger_factory,
-        hist_data_engine=hist_data_engine,
         orchestrator=orchestrator,
         transition_engine=transition_engine
     )
 
+    df = hist_data_engine.load_data()
+
     # 6. Run backtest
-    backtest_engine.run()
+    backtest_engine.run(
+        bt_input=BacktestInput(
+            timestamp= df["timestamp"],
+            data = {
+            "open": df["open"],
+            "high": df["high"],
+            "low": df["low"],
+            "close": df["close"],
+        })
+    )
 
 if __name__ == "__main__":
     main()

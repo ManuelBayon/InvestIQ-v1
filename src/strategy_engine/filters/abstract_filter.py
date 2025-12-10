@@ -11,5 +11,8 @@ class AbstractFilter(ABC):
     metadata: FilterMetadata
 
     @abstractmethod
-    def apply_filter(self, input_: FilterInput) -> FilterOutput:
+    def apply_filter(
+            self,
+            input_: FilterInput
+    ) -> FilterOutput:
         ...

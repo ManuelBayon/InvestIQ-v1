@@ -1,9 +1,8 @@
 from collections import defaultdict
 
-import pandas as pd
-
 from backtest_engine.common.enums import FIFOSide
 from backtest_engine.common.types import FIFOPosition, ExecutionLogEntry, FIFOOperation
+from backtest_engine.portfolio.contracts import PortfolioSignal
 from backtest_engine.portfolio.protocol import PortfolioProtocol
 from backtest_engine.portfolio.execution_strategies.factory import FIFOExecutionFactory
 from backtest_engine.transition_engine.engine import TransitionEngine
@@ -25,12 +24,12 @@ class Portfolio(PortfolioProtocol):
         self._logger : LoggerProtocol =self._logger_factory.get()
         self._cash = initial_cash
         self.transition_engine = transition_engine
-        self.realized_pnl: float = 0.0
+        self._realized_pnl: float = 0.0
         self._unrealized_pnl: float = 0.0
-        self.current_position: float = 0.0
-        self.fifo_queues : dict[FIFOSide, list[FIFOPosition]] = defaultdict(list)
-        self.execution_log : list[ExecutionLogEntry] = []
-        self.fifo_execution_factory: FIFOExecutionFactory = FIFOExecutionFactory(logger_factory=self._logger_factory)
+        self._current_position: float = 0.0
+        self._fifo_queues : dict[FIFOSide, list[FIFOPosition]] = defaultdict(list)
+        self._execution_log : list[ExecutionLogEntry] = []
+        self._fifo_exec_factory: FIFOExecutionFactory = FIFOExecutionFactory(logger_factory=self._logger_factory)
 
     def append_log_entry(
             self,
@@ -43,27 +42,23 @@ class Portfolio(PortfolioProtocol):
             operations: list[FIFOOperation]
     ) -> None:
         for op in operations:
-            fifo_execution_strategy: PortfolioExecutionStrategy = self.fifo_execution_factory.create(fifo_op_type=op.type)
-            execution_log: ExecutionLogEntry = fifo_execution_strategy.apply(self, op)
+            strategy: PortfolioExecutionStrategy = self._fifo_exec_factory.create(fifo_op_type=op.type)
+            execution_log: ExecutionLogEntry = strategy.apply(self, operation=op)
             self.append_log_entry(execution_log)
 
-    def generate_and_apply_fifo_operations_from_signals(
+    def apply_signals(
             self,
-            signals : pd.DataFrame,
+            signals : list[PortfolioSignal]
     ) -> None:
-        for _, row in signals.iterrows():
-            current_position = self.current_position
-            timestamp = row.timestamp
-            target_position = float(row.target_position)
-            price = row.close
+        for signal in signals:
             fifo_operations : list[FIFOOperation] = self.transition_engine.process(
-                current_position=current_position,
-                target_position=target_position,
-                timestamp=timestamp,
-                fifo_queues=self.fifo_queues,
-                price=price
+                current_position=self._current_position,
+                timestamp=signal.timestamp,
+                target_position=signal.target_position,
+                price=signal.price,
+                fifo_queues=self.fifo_queues
             )
             self.apply_fifo_operations(fifo_operations)
 
     def get_realized_pnl(self) -> float:
-        return self.realized_pnl
+        return self._realized_pnl

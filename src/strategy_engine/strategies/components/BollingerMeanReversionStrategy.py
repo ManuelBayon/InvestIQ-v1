@@ -3,7 +3,7 @@ import uuid
 
 from strategy_engine.strategies.abstract_strategy import AbstractStrategy, StrategyMetadata
 
-from strategy_engine.strategies.contracts import StrategyInput, StrategyOutput, MarketField, ComponentType
+from strategy_engine.strategies.contracts import StrategyInput, StrategyOutput, MarketField
 
 
 class BollingerMeanReversionStrategy(AbstractStrategy):
@@ -48,7 +48,7 @@ class BollingerMeanReversionStrategy(AbstractStrategy):
             if field not in input_.data:
                 raise KeyError(f"Missing required field: {field}")
 
-        ts = input_.timestamp
+        ts = input_.data['timestamp']
         close = input_.data[MarketField.CLOSE]
 
         std = close.rolling(self.window).std()

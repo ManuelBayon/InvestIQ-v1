@@ -40,7 +40,7 @@ class MovingAverageCrossStrategy(AbstractStrategy):
             if field not in input_.data:
                 raise KeyError(f"Missing required field: {field}")
 
-        ts = input_.timestamp
+        ts = input_.data['timestamp']
         close = input_.data[MarketField.CLOSE]
 
         ma_fast= close.rolling(window=self.fast_window).mean()

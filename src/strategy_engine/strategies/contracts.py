@@ -1,50 +1,44 @@
-from dataclasses import dataclass
+from collections import defaultdict
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, field
 
 import pandas as pd
 
-from strategy_engine.enums import MarketField, Version
+from strategy_engine.enums import MarketField
 from strategy_engine.strategies.metadata import StrategyMetadata
 
 @dataclass(frozen=True)
-class OrchestratorInput:
-    timestamp: pd.Series
-    data: dict[str, pd.Series]
-    extra: dict[str, object] | None
-
-@dataclass(frozen=True)
 class StrategyInput:
-    timestamp: pd.Series
-    data: dict[str, pd.Series]
-    extra: dict [str, object] | None
+    timestamp: pd.Timestamp
+    bar: dict[str, float]
+    history: Mapping[str, Sequence[float]]
 
 @dataclass(frozen=True)
 class FilterInput:
-    timestamp: pd.Series
-    raw_target: pd.Series
-    features: dict[str, object] | None
+    timestamp: pd.Timestamp
+    raw_target: float
+    features: dict[str, object] | None = field(default_factory=dict)
 
 @dataclass(frozen=True)
 class StrategyOutput:
-    timestamp: pd.Series
-    raw_target: pd.Series
+    timestamp: pd.Timestamp
+    raw_target: float
     price_type: MarketField
-    price_serie: pd.Series
+    price: float
     metadata: StrategyMetadata
-    features: dict[str, object] | None
-    diagnostics: dict[str, object] | None
+    features: dict[str, object] | None = field(default_factory=dict)
+    diagnostics: dict[str, object] | None = field(default_factory=dict)
 
 @dataclass(frozen=True)
 class FilterOutput:
-    timestamp: pd.Series
-    target_position: pd.Series
-    diagnostics: dict[str, object] | None
-    version: Version = Version.V1
+    timestamp: pd.Timestamp
+    target_position: float
+    diagnostics: dict[str, object] | None = field(default_factory=dict)
 
 @dataclass(frozen=True)
 class OrchestratorOutput:
-    timestamp: pd.Series
-    target_position: pd.Series
+    timestamp: pd.Timestamp
+    target_position: float
     price_type: MarketField
-    price_serie: pd.Series
-    diagnostics : dict[str, object] | None
-    version: Version = Version.V1
+    price: float
+    diagnostics: dict[str, object] | None = field(default_factory=dict)

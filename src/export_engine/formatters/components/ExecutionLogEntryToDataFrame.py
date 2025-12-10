@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Iterable
 
 import pandas as pd
@@ -6,6 +5,7 @@ import pandas as pd
 from backtest_engine.common.types import ExecutionLogEntry
 from export_engine.formatters.base_batch_formatter import BatchFormatter
 from utilities.logger.protocol import LoggerProtocol
+from strategy_engine.utils.time_utils import format_utc_offset
 
 
 class BacktestDataFrameFormatter(BatchFormatter[ExecutionLogEntry, pd.DataFrame]):
@@ -18,29 +18,11 @@ class BacktestDataFrameFormatter(BatchFormatter[ExecutionLogEntry, pd.DataFrame]
     ) -> None:
         super().__init__(logger)
 
-    @staticmethod
-    def format_utc_offset(ts: datetime) -> str:
-        """
-        Returns timezone as 'UTC+02:00', 'UTC-05:00', or 'naive'.
-        """
-        if ts.tzinfo is None:
-            return "naive"
-
-        offset = ts.utcoffset()
-        if offset is None:
-            return "naive"
-
-        total_min = int(offset.total_seconds() // 60)
-        sign = "+" if total_min >= 0 else "-"
-        hours, minutes = divmod(abs(total_min), 60)
-
-        return f"UTC{sign}{hours:02d}:{minutes:02d}"
-
     def _format(self, data: Iterable[ExecutionLogEntry]) -> pd.DataFrame:
         rows = []
         for entry in data:
             ts = entry.timestamp
-            timezone_str = self.format_utc_offset(ts)
+            timezone_str = format_utc_offset(ts)
             ts_naive = ts.replace(tzinfo=None)
             rows.append({
                 "timestamp": ts_naive,

@@ -23,7 +23,7 @@ class TransitionEngine:
         self._logger = logger_factory.child("TransitionEngine").get()
         self._transition_rule_factory =  TransitionRuleFactory(self._logger_factory)
         self._transition_strategy_factory = TransitionStrategyFactory(self._logger_factory)
-        self._fifo_resolver: FIFOResolver = FIFOResolver(self._logger_factory)
+        self._fifo_resolver : FIFOResolver = FIFOResolver(self._logger_factory)
         self._last_resolution : Optional[TransitionLog] = None
 
     def process(
