@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from strategy_engine.filters.metadata import FilterMetadata
-from strategy_engine.strategies.contracts import FilterOutput, FilterInput
+from strategy_engine.contracts import FilterOutput, FilterInput
 
 
 

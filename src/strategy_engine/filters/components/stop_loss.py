@@ -2,7 +2,7 @@ import datetime
 import uuid
 
 from strategy_engine.filters.abstract_filter import AbstractFilter, FilterMetadata
-from strategy_engine.strategies.contracts import FilterInput, FilterOutput, MarketField
+from strategy_engine.contracts import FilterInput, FilterOutput, MarketField
 
 
 class StaticStopLossFilter(AbstractFilter):

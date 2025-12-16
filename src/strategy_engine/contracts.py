@@ -1,4 +1,3 @@
-from collections import defaultdict
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 
@@ -23,10 +22,9 @@ class FilterInput:
 class StrategyOutput:
     timestamp: pd.Timestamp
     raw_target: float
-    price_type: MarketField
     price: float
+    price_type: MarketField
     metadata: StrategyMetadata
-    features: dict[str, object] | None = field(default_factory=dict)
     diagnostics: dict[str, object] | None = field(default_factory=dict)
 
 @dataclass(frozen=True)

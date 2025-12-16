@@ -28,11 +28,11 @@ class TransitionEngine:
 
     def process(
             self,
+            timestamp : datetime,
             current_position : float,
             target_position : float,
-            timestamp : datetime,
+            price : float,
             fifo_queues : dict[FIFOSide, list[FIFOPosition]],
-            price : float
     ) -> list[FIFOOperation]:
 
         # 1. Build context

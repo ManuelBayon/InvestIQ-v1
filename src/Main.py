@@ -1,86 +1,65 @@
-from backtest_engine.common.contracts import BacktestInput
+from datetime import datetime
+
+from backtest_engine.factory import build_backtest
+from backtest_engine.orchestrator import BacktestOrchestrator
 from backtest_engine.common.enums import FutureCME
-from backtest_engine.engine import BacktestEngine
-from backtest_engine.bootstrap import backtest_engine_bootstrap
-from backtest_engine.transition_engine.engine import TransitionEngine
 
 from export_engine.bootstrap import export_engine_bootstrap
+from export_engine.factory import ExportServiceFactory
+from export_engine.registries.config import ExportOptions, ExportKey
 
-from historical_data_engine.HistoricalDataEngine import HistoricalDataEngine
-from historical_data_engine.connection.TWSConnection import TWSConnection
 from historical_data_engine.enums import BarSize
-from historical_data_engine.source.IBKRDataSource import IBKRDataSource
-from historical_data_engine.instruments.ContFutureSettings import ContFutureSettings
-from historical_data_engine.instruments.InstrumentID import InstrumentID
-from historical_data_engine.request.IBKRRequestSettings import IBKRRequestSettings
+
 from strategy_engine.strategies.components.MovingAverageCrossStrategy import MovingAverageCrossStrategy
-from strategy_engine.orchestrator.orchestrator import StrategyOrchestrator
 
 from utilities.logger.factory import LoggerFactory
 from utilities.logger.setup import init_base_logger
 
 def main() -> None:
 
-    # 1. Logger initialisation
     init_base_logger(debug=True)
     logger_factory = LoggerFactory(
         engine_type="Backtest",
         run_id="0841996",
     )
-
     # 2. Bootstraps
-    backtest_engine_bootstrap(logger=logger_factory.child("BacktestEngine Bootstrap").get())
     export_engine_bootstrap(logger=logger_factory.child("ExportEngine Bootstrap").get())
 
-    # 3. Historical data engine configuration and request
-    instrument_settings = ContFutureSettings(
-        symbol=FutureCME.MNQ.value,
-        symbol_id=InstrumentID.from_enum(FutureCME.MNQ)
-    )
-    request_settings = IBKRRequestSettings(
-        duration="200 D",
-        bar_size_setting=BarSize.ONE_HOUR
-    )
-    tws_connection = TWSConnection(
-        logger=logger_factory.child("TWS Connection").get(),
-    )
-    data_source = IBKRDataSource(
-        logger=logger_factory.child("InteractiveBroker DataSource").get(),
-        connection=tws_connection
-    )
-    hist_data_engine: HistoricalDataEngine = HistoricalDataEngine(
-        logger=logger_factory.child("Historical Data Engine").get(),
-        instrument_settings=instrument_settings,
-        request_settings=request_settings,
-        data_source=data_source
-    )
-    data = hist_data_engine.load_data()
-
-    # 4. Strategy engine configuration
-    strategy = MovingAverageCrossStrategy()
-    orchestrator = StrategyOrchestrator(strategy=strategy)
-
-    # 5. Backtest engine configuration
-    transition_engine: TransitionEngine = TransitionEngine(logger_factory=logger_factory)
-    backtest_engine: BacktestEngine = BacktestEngine(
+    export_service_factory = ExportServiceFactory(
         logger_factory=logger_factory,
-        orchestrator=orchestrator,
-        transition_engine=transition_engine
+        options=ExportOptions(
+            sink={
+                "filename": FutureCME.MNQ.value + datetime.now().strftime("_%Y-%m-%d_%Hh%M"),
+            }
+        )
     )
 
-    df = hist_data_engine.load_data()
-
-    # 6. Run backtest
-    backtest_engine.run(
-        bt_input=BacktestInput(
-            timestamp= df["timestamp"],
-            data = {
-            "open": df["open"],
-            "high": df["high"],
-            "low": df["low"],
-            "close": df["close"],
-        })
+    bundle = build_backtest(
+        logger_factory=logger_factory,
+        symbol=FutureCME.MNQ,
+        duration_setting="100 D",
+        bar_size_setting=BarSize.ONE_HOUR,
+        strategy=MovingAverageCrossStrategy,
+        filters=None,
+        initial_cash=100_000,
     )
+
+    orchestrator = BacktestOrchestrator(
+        engine=bundle.engine,
+        context=bundle.context,
+    )
+
+    for _ in orchestrator.stream_candles(bt_input=bundle.input):
+        pass
+
+    export_service = export_service_factory.create_backtest_batch_export_service(
+        key=ExportKey.EXCEL
+    )
+    export_service.export(
+        raw_data=bundle.engine.portfolio.execution_log
+    )
+
+    print("Backtest finished.")
 
 if __name__ == "__main__":
     main()

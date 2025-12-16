@@ -3,7 +3,7 @@ import uuid
 
 from strategy_engine.strategies.abstract_strategy import AbstractStrategy, StrategyMetadata
 
-from strategy_engine.strategies.contracts import StrategyInput, StrategyOutput, MarketField
+from strategy_engine.contracts import StrategyInput, StrategyOutput, MarketField
 
 
 class BollingerMeanReversionStrategy(AbstractStrategy):

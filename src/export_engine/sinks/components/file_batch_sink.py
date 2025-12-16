@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import IO, BinaryIO
 
+from config.AppSettings import app_settings
 from export_engine.common.errors import ExportError
 from export_engine.sinks.base_batch_sink import BatchSink
 from utilities.logger.protocol import LoggerProtocol
@@ -15,8 +16,8 @@ class FileBatchSink(BatchSink[bytes]):
     def __init__(
             self,
             logger: LoggerProtocol,
-            output_dir: Path,
             filename: str,
+            output_dir: Path =  app_settings.backtest_log_dir,
             suffix: str = ".xlsx",
             temp_suffix: str = ".tmp"
     ):
