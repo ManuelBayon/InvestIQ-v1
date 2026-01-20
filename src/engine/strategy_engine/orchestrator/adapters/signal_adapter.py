@@ -6,7 +6,6 @@ class SignalAdapter:
 
     @staticmethod
     def adapt(orchestrator_output: OrchestratorOutput) -> PortfolioSignal:
-
             return PortfolioSignal(
                 timestamp=orchestrator_output.timestamp,
                 target_position=orchestrator_output.target_position,

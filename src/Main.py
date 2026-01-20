@@ -28,6 +28,7 @@ def main() -> None:
         engine=bundle.engine,
         context=bundle.context,
     )
+
     for _ in orchestrator.stream_candles(bt_input=bundle.input):
         pass
 

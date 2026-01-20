@@ -29,6 +29,7 @@ class ExecutionState:
 
 @dataclass
 class BacktestContext:
+
     timestamp: pd.Timestamp
     bar: dict[str, float]
     history: dict[str, list[float]]

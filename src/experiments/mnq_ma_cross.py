@@ -27,4 +27,4 @@ def build_experiment(
     return build_backtest(
     logger_factory=logger_factory,
     backtest_config=config
-)
+    )
