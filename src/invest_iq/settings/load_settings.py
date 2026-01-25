@@ -1,0 +1,36 @@
+import os
+from pathlib import Path
+
+from invest_iq.config.app_settings import AppSettings
+from invest_iq.config.enums import EnvType, DebugMode
+
+
+def load_app_settings() -> AppSettings:
+
+    # 1. Base dir
+    base_dir_raw = os.getenv("INVESTIQ_RUN_DIR")
+
+    if base_dir_raw:
+        base_dir = Path(base_dir_raw)
+    else:
+        # fallback
+        base_dir = Path.cwd() / "runs"
+
+    # 2. Environnement
+    env_raw = os.getenv("INVESTIQ_ENV", "DEBUG").upper()
+    env = EnvType[env_raw]
+
+    debug_raw = os.getenv("INVESTIQ_DEBUG", "ON").upper()
+    debug = DebugMode[debug_raw]
+
+    # 3. Derived variables
+    engine_log_dir = base_dir / "engine_logs"
+    backtest_log_dir = base_dir / "backtest_logs"
+
+    return AppSettings(
+        base_dir=base_dir,
+        engine_log_dir=engine_log_dir,
+        backtest_log_dir=backtest_log_dir,
+        env=env,
+        debug=debug,
+    )
