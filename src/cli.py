@@ -1,18 +1,18 @@
 from datetime import datetime
 
+from experiments.builder import build_experiment
+
 from invest_iq.engines.backtest_engine.common.enums import FutureCME
-from invest_iq.engines.backtest_engine.orchestrator import BacktestRunner
 from invest_iq.engines.export_engine.registries.config import ExportKey, ExportOptions
 from invest_iq.engines.export_engine.runner import BacktestExportRunner
 from invest_iq.engines.utilities.logger.factory import LoggerFactory
 from invest_iq.engines.utilities.logger.setup import init_base_logger
-from experiments.mnq_ma_cross import build_experiment
 from invest_iq.engines.backtest_engine.common.contracts import BacktestResult
 
 def main() -> None:
 
     # 1. Init base logger
-    init_base_logger()
+    init_base_logger(debug=True)
     logger_factory = LoggerFactory(
         engine_type="Backtest",
         run_id="0841996",
@@ -24,12 +24,11 @@ def main() -> None:
     )
 
     # 3. Instantiate and run backtest orchestrator
-    runner = BacktestRunner(
-        logger_factory=logger_factory,
-        engine=bundle.engine,
-        context=bundle.context,
-    )
-    result: BacktestResult= runner.run(bt_input=bundle.input)
+    for event in bundle.bt_input.events:
+        bundle.engine.step(
+            event=event,
+            context=bundle.context,
+        )
 
     # 4. Export Execution logs
     export_runner = BacktestExportRunner(
@@ -42,8 +41,8 @@ def main() -> None:
         )
     )
     export_runner.export(
-        execution_log=result.execution_log,
-        metrics={"Realized PnL":result.realized_pnl}
+        execution_log=bundle.engine.portfolio.execution_log,
+        metrics={"Realized PnL":bundle.engine.portfolio.realized_pnl}
     )
 
 if __name__ == "__main__":
