@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from pathlib import Path
 
 from invest_iq.engines.export_engine.common.errors import ExportError
 from invest_iq.engines.export_engine.formatters.base_batch_formatter import BatchFormatter
@@ -41,7 +42,7 @@ class BatchExportService[RawT, FormattedT, EncodedT]:
     def export(
             self,
             raw_data: Iterable[RawT]
-    ) -> None :
+    ) -> Path :
         """
         Execute the end-to-end export pipeline.
         """
@@ -55,6 +56,7 @@ class BatchExportService[RawT, FormattedT, EncodedT]:
             with self._writer as writer:
                 writer.write(formatted_data)
                 writer.commit()
+                path = writer.output_path
 
         except ValidationError as e:
             msg = f"Validation failure in pipeline: {e}"
@@ -72,3 +74,4 @@ class BatchExportService[RawT, FormattedT, EncodedT]:
             raise ExportError(msg) from e
 
         self._logger.info("Export pipeline completed successfully.")
+        return path

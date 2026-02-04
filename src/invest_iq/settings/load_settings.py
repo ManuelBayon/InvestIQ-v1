@@ -13,8 +13,7 @@ def load_app_settings() -> AppSettings:
     if base_dir_raw:
         base_dir = Path(base_dir_raw)
     else:
-        # fallback
-        base_dir = Path.cwd() / "runs"
+        base_dir = Path(r"D:\3 - InvestIQ - Runs")
 
     # 2. Environnement
     env_raw = os.getenv("INVESTIQ_ENV", "DEBUG").upper()
@@ -24,8 +23,8 @@ def load_app_settings() -> AppSettings:
     debug = DebugMode[debug_raw]
 
     # 3. Derived variables
-    engine_log_dir = base_dir / "engine_logs"
-    backtest_log_dir = base_dir / "backtest_logs"
+    engine_log_dir = base_dir / "Engine logs"
+    backtest_log_dir = base_dir / "Backtest logs"
 
     return AppSettings(
         base_dir=base_dir,

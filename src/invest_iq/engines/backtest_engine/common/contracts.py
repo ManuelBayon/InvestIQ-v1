@@ -1,21 +1,23 @@
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 
 from invest_iq.common.market_types import MarketEvent
 from invest_iq.engines.backtest_engine.common.enums import FIFOSide
 from invest_iq.engines.backtest_engine.common.types import ExecutionLogEntry, FIFOPosition
+from invest_iq.engines.historical_data_engine.enums import BarSize
 from invest_iq.engines.strategy_engine.contracts import OrchestratorOutput, StrategyOutput, FilterOutput
 
 @dataclass(frozen=True)
 class InstrumentSpec:
     symbol: str
     asset_class: str        # "FUT", "EQ", "FX", ...
-    bar_size: str           # "1 min", "5 min", ...
+    bar_size: BarSize           # "1 min", "5 min", ...
     timezone: str | None = None
 
 @dataclass(frozen=True)
 class BacktestInput:
     instrument: InstrumentSpec
-    events: list[MarketEvent]
+    events: Iterable[MarketEvent]
 
 @dataclass
 class ModelState:

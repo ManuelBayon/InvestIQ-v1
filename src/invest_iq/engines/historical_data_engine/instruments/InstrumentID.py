@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from enum import Enum
 
@@ -7,24 +8,30 @@ class InstrumentID:
 
     code : str
 
+    _NORMALIZE_PATTERN = re.compile(r"[^A-Z0-9]")
+
+    @classmethod
+    def _normalize(cls, raw: str) -> str:
+        if not raw or not isinstance(raw, str):
+            raise ValueError("InstrumentID must be created from a non-empty string")
+        upper = raw.upper()
+        return cls._NORMALIZE_PATTERN.sub("", upper)
+
     @classmethod
     def from_symbol(cls, raw_symbol: str) -> "InstrumentID":
-        cleaned_symbol = raw_symbol.replace('/', '').replace('-', '').replace('_', '')
-        return cls(code=cleaned_symbol)
+        return cls(code=cls._normalize(raw_symbol))
 
     @classmethod
     def from_enum(cls, enum_value: Enum) -> "InstrumentID":
-        return cls(code=enum_value.value)
+        return cls.from_symbol(enum_value.name)
 
     def __str__(self) -> str:
         return self.code
 
-    def __eq__(self, other:object) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, InstrumentID):
             return self.code == other.code
-        elif isinstance(other, str):
-            return self.code == InstrumentID.from_symbol(other).code
-        return False
+        return NotImplemented
 
     def __hash__(self) -> int:
         return hash(self.code)

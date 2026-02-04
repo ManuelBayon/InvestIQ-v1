@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
+from pathlib import Path
 from types import TracebackType
 from typing import Self, final
 
@@ -309,3 +310,12 @@ class BatchSink[EncodedT](Sink[EncodedT], ABC):
           - Must not alter sink state (ERROR persists for auditability).
           - Should leave the system ready for retry with a new sink instance.
         """
+
+    @property
+    @abstractmethod
+    def output_path(self) -> Path:
+        """
+        Absolute or normalized path to the final committed artefact.
+        Must be valid after commit().
+        """
+        raise NotImplementedError

@@ -8,7 +8,8 @@ from invest_iq.engines.strategy_engine.strategies.abstract_strategy import Abstr
 
 @dataclass
 class BacktestConfig:
-    symbol: FutureCME
+    symbol: str
+    asset_class: str
     duration_setting : str
     bar_size_setting : BarSize
     strategy : AbstractStrategy

@@ -4,7 +4,9 @@ from types import ModuleType
 from typing import List
 
 
-def import_submodules(package_name: str) -> List[ModuleType]:
+def import_submodules(
+        package_name: str
+) -> List[ModuleType]:
     """
     Dynamically import all submodules of a given package.
 

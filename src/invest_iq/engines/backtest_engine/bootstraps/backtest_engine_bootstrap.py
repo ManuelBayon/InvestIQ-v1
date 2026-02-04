@@ -26,35 +26,35 @@ def _validate_registries(logger: LoggerProtocol) -> None:
     validate_registry(
         logger,
         "Transition rules",
-        "engines.backtest_engine.transition_engine.transition_rules.rules",
+        "invest_iq.engines.backtest_engine.transition_engine.transition_rules.rules",
         {(s, e) for s in CurrentState for e in Event},
         TransitionRuleRegistry.available,
     )
     validate_registry(
         logger,
         "Transition strategies",
-        "engines.backtest_engine.transition_engine.transition_strategies.strategies",
+        "invest_iq.engines.backtest_engine.transition_engine.transition_strategies.strategies",
         set(TransitionType),
         TransitionStrategyRegistry.available,
     )
     validate_registry(
         logger,
         "fifo resolve strategies",
-        "engines.backtest_engine.transition_engine.fifo.resolve_strategies.strategies",
+        "invest_iq.engines.backtest_engine.transition_engine.fifo.resolve_strategies.strategies",
         set(AtomicActionType),
         FIFOResolveRegistry.available,
     )
     validate_registry(
         logger,
         "SafeGuard strategies",
-        "engines.backtest_engine.transition_engine.fifo.guards_strategies.strategies",
+        "invest_iq.engines.backtest_engine.transition_engine.fifo.guards_strategies.strategies",
         set(GuardName),
         SafeGuardRegistry.available,
     )
     validate_registry(
         logger,
         "fifo execution strategies",
-        "engines.backtest_engine.portfolio.execution_strategies.strategies",
+        "invest_iq.engines.backtest_engine.portfolio.execution_strategies.strategies",
         set(FIFOOperationType),
         FIFOExecutionRegistry.available,
     )

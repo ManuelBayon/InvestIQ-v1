@@ -25,6 +25,7 @@ def main() -> None:
 
     # 3. Instantiate and run backtest orchestrator
     runner = BacktestRunner(
+        logger_factory=logger_factory,
         engine=bundle.engine,
         context=bundle.context,
     )
@@ -40,7 +41,10 @@ def main() -> None:
             }
         )
     )
-    export_runner.export_execution_log(execution_log=result.execution_log)
+    export_runner.export(
+        execution_log=result.execution_log,
+        metrics={"Realized PnL":result.realized_pnl}
+    )
 
 if __name__ == "__main__":
     main()

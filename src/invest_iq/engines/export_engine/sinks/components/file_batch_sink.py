@@ -1,11 +1,11 @@
 from pathlib import Path
 from typing import BinaryIO
 
-from invest_iq.config.app_settings import app_settings
 from invest_iq.engines.export_engine.common.errors import ExportError
 from invest_iq.engines.export_engine.sinks.base_batch_sink import BatchSink
 from invest_iq.engines.utilities.logger.protocol import LoggerProtocol
 
+from invest_iq.settings.load_settings import load_app_settings
 
 class FileBatchSink(BatchSink[bytes]):
     """
@@ -17,14 +17,14 @@ class FileBatchSink(BatchSink[bytes]):
             self,
             logger: LoggerProtocol,
             filename: str,
-            output_dir: Path =  app_settings.backtest_log_dir,
             suffix: str = ".xlsx",
             temp_suffix: str = ".tmp"
     ):
         super().__init__(logger)
         self._file: BinaryIO | None = None
+        self._filepath: Path | None = load_app_settings().backtest_log_dir
         self._path, self._temp_path = self._resolve_paths(
-            output_dir=output_dir,
+            output_dir=self._filepath,
             filename=filename,
             suffix=suffix,
             temp_suffix=temp_suffix
@@ -128,3 +128,11 @@ class FileBatchSink(BatchSink[bytes]):
         temp_path = output_dir / f"{filename}{suffix}{temp_suffix}"
 
         return final_path, temp_path
+
+    @property
+    def output_path(self) -> Path:
+        """
+        Final committed artefact path.
+        Valid only after a successful commit.
+        """
+        return self._path

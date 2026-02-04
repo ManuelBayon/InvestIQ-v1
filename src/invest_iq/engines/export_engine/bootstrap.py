@@ -12,7 +12,7 @@ def validate_export_registry(
     """
 
     # Force-load all modules that contain @bind declarations
-    import_submodules("engines.export_engine.services.components")
+    import_submodules("invest_iq.engines.export_engine.services.components")
 
     registered = set(BacktestExportRegistry.available())
     expected = set(e for e in ExportKey)

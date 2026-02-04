@@ -13,7 +13,8 @@ def build_experiment(
 ) -> BacktestBundle:
 
     config = BacktestConfig(
-        symbol=FutureCME.MNQ,
+        symbol=FutureCME.MNQ.value,
+        asset_class="CONT_FUT",
         duration_setting="100 D",
         bar_size_setting=BarSize.ONE_HOUR,
         strategy=MovingAverageCrossStrategy(

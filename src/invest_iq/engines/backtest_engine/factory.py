@@ -2,12 +2,13 @@ from dataclasses import dataclass
 
 from invest_iq.engines.backtest_engine.bootstraps.backtest_engine_bootstrap import bootstrap_backtest_engine
 from invest_iq.engines.backtest_engine.common.backtest_context import BacktestContext
-from invest_iq.engines.backtest_engine.common.contracts import BacktestInput, ModelState, ExecutionState
+from invest_iq.engines.backtest_engine.common.contracts import BacktestInput, ModelState, ExecutionState, InstrumentSpec
 from invest_iq.engines.backtest_engine.engine import BacktestEngine
 
 from invest_iq.config.backtest_config import BacktestConfig
 
 from invest_iq.engines.historical_data_engine.HistoricalDataEngine import HistoricalDataEngine
+from invest_iq.engines.historical_data_engine.backtest_feed import DataFrameBacktestFeed
 from invest_iq.engines.historical_data_engine.connection.TWSConnection import TWSConnection
 from invest_iq.engines.historical_data_engine.source.IBKRDataSource import IBKRDataSource
 from invest_iq.engines.historical_data_engine.instruments.ContFutureSettings import ContFutureSettings
@@ -29,8 +30,8 @@ def build_backtest(
 
     # 1. Configure and load historical data
     instrument_settings = ContFutureSettings(
-        symbol=backtest_config.symbol.value,
-        symbol_id=InstrumentID.from_enum(backtest_config.symbol)
+        symbol=backtest_config.symbol,
+        symbol_id=InstrumentID.from_symbol(backtest_config.symbol)
     )
     request_settings = IBKRRequestSettings(
         duration=backtest_config.duration_setting,
@@ -50,6 +51,12 @@ def build_backtest(
         data_source=data_source
     )
     df = hist_data_engine.load_data()
+    feed = DataFrameBacktestFeed(
+        logger=logger_factory.child("BacktestFeed").get(),
+        df=df,
+        symbol=backtest_config.symbol,
+        bar_size=backtest_config.bar_size_setting,
+    )
 
     # 2. Backtest engines configuration
     backtest_engine: BacktestEngine = bootstrap_backtest_engine(
@@ -61,13 +68,12 @@ def build_backtest(
 
     # 3. Create backtest input
     bt_input = BacktestInput(
-        timestamp=df.timestamp,
-        data={
-            "open": df.open,
-            "high": df.high,
-            "low": df.low,
-            "close": df.close
-        }
+        instrument=InstrumentSpec(
+           symbol=backtest_config.symbol,
+           asset_class=backtest_config.asset_class,
+           bar_size=backtest_config.bar_size_setting,
+        ),
+        events=feed
     )
 
     # 4. Initialize Backtest context

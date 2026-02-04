@@ -1,5 +1,6 @@
 from abc import ABC
 from enum import Enum
+from pathlib import Path
 from types import TracebackType
 from typing import Self, TypeVar
 
@@ -291,3 +292,9 @@ class BatchWriter[FormattedT, EncodedT](ABC):
             msg = f"{stage} validation failed: {e}"
             self._logger.error(msg)
             raise ExportError(msg) from e
+
+    @property
+    def output_path(self) -> Path:
+        if self._state != BatchWriterState.COMMITTED:
+            raise ExportError("output_path requested before commit")
+        return self._sink.output_path

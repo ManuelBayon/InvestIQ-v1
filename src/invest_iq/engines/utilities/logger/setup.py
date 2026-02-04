@@ -6,8 +6,7 @@ from typing import Optional
 
 from colorlog import ColoredFormatter
 
-from invest_iq.config.app_settings import app_settings
-
+from invest_iq.settings.load_settings import load_app_settings
 
 class RotationType(Enum):
     SIZE = "SIZE"
@@ -22,6 +21,8 @@ def init_base_logger(
 ) -> None:
 
     global _base_logger
+
+    app_settings = load_app_settings()
 
     """Initializes the central logger (to be called only once, e.g., in main or conftest)."""
     if log_file is None:

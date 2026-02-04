@@ -1,11 +1,7 @@
-from collections.abc import Iterator
-
 from invest_iq.engines.backtest_engine.common.backtest_context import BacktestContext
 from invest_iq.engines.backtest_engine.common.contracts import BacktestInput, BacktestResult
 from invest_iq.engines.backtest_engine.engine import BacktestEngine
-from invest_iq.engines.historical_data_engine.backtest_feed import BacktestFeed
 from invest_iq.engines.utilities.logger.factory import LoggerFactory
-from invest_iq.engines.utilities.logger.protocol import LoggerProtocol
 
 
 class BacktestRunner:
@@ -25,12 +21,7 @@ class BacktestRunner:
             bt_input: BacktestInput
     ) -> BacktestResult:
 
-        feed = BacktestFeed(
-            logger=self._logger_factory.child("BacktestFeed").get(),
-            bt_input=bt_input
-        )
-
-        for event in feed:
+        for event in bt_input.events:
             self._engine.step(
                event=event,
                context=self._context,
