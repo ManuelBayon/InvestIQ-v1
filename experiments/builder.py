@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 
 from invest_iq.engines.backtest_engine.bootstraps.backtest_engine_bootstrap import bootstrap_backtest_engine
-from invest_iq.engines.backtest_engine.common.backtest_context import BacktestContext
-from invest_iq.engines.backtest_engine.common.contracts import BacktestInput, InstrumentSpec
+from invest_iq.engines.backtest_engine.common.backtest_context import BacktestContext, BacktestInput, InstrumentSpec
 from invest_iq.engines.backtest_engine.common.enums import FutureCME
 from invest_iq.engines.backtest_engine.engine import BacktestEngine
 
@@ -27,9 +26,7 @@ class BacktestBundle:
     context: BacktestContext
     bt_input: BacktestInput
 
-def build_experiment(
-        logger_factory: LoggerFactory,
-) -> BacktestBundle:
+def build_experiment(logger_factory: LoggerFactory) -> BacktestBundle:
 
     config = BacktestConfig(
         symbol=FutureCME.MNQ.value,
@@ -67,14 +64,8 @@ def build_experiment(
         data_source=data_source
     )
     df = hist_data_engine.load_data()
-    feed = DataFrameBacktestFeed(
-        logger=logger_factory.child("BacktestFeed").get(),
-        df=df,
-        symbol=config.symbol,
-        bar_size=config.bar_size_setting,
-    )
 
-    # 2. Backtest engines configuration
+    # 2. Bootstrap Backtest Engine
     backtest_engine: BacktestEngine = bootstrap_backtest_engine(
         logger_factory=logger_factory,
         strategy=config.strategy,
@@ -82,7 +73,13 @@ def build_experiment(
         initial_cash=config.initial_cash
     )
 
-    # 3. Create backtest input
+    # 3. Create event feed from data frame and initialize backtest input
+    feed = DataFrameBacktestFeed(
+        logger=logger_factory.child("BacktestFeed").get(),
+        df=df,
+        symbol=config.symbol,
+        bar_size=config.bar_size_setting,
+    )
     bt_input = BacktestInput(
         instrument=InstrumentSpec(
             symbol=config.symbol,

@@ -2,7 +2,7 @@ from collections.abc import Iterator
 
 import pandas as pd
 
-from invest_iq.common.market_types import MarketEvent, OHLCV
+from invest_iq.engines.backtest_engine.common.backtest_context import MarketEvent, OHLCV
 from invest_iq.engines.historical_data_engine.enums import BarSize
 from invest_iq.engines.utilities.logger.protocol import LoggerProtocol
 

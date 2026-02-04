@@ -1,6 +1,5 @@
+from invest_iq.engines.backtest_engine.common.types import OrchestratorOutput
 from invest_iq.engines.backtest_engine.portfolio.contracts import PortfolioSignal
-from invest_iq.engines.strategy_engine.contracts import OrchestratorOutput
-
 
 class SignalAdapter:
 

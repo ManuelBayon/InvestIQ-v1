@@ -2,10 +2,9 @@ import datetime
 import uuid
 from collections.abc import Sequence
 
-from invest_iq.engines.backtest_engine.common.backtest_context import BacktestContext
+from invest_iq.engines.backtest_engine.common.backtest_context import BacktestContext, StrategyInput, StrategyOutput
+from invest_iq.engines.strategy_engine.enums import MarketField
 from invest_iq.engines.strategy_engine.strategies.abstract_strategy import AbstractStrategy, StrategyMetadata
-from invest_iq.engines.strategy_engine.contracts import StrategyInput, StrategyOutput, MarketField
-
 
 class MovingAverageCrossStrategy(AbstractStrategy):
 
@@ -69,8 +68,8 @@ class MovingAverageCrossStrategy(AbstractStrategy):
         hist_close = strategy_input.history[MarketField.CLOSE]
 
         # 1. Compute features incrementally
-        prev_fast = context.features.get("ma_fast")
-        prev_slow = context.features.get("ma_slow")
+        prev_fast = context.features.computed.get("ma_fast")
+        prev_slow = context.features.computed.get("ma_slow")
 
         ma_fast = self._compute_sma_incremental(
             window_size=self.fast_window,
@@ -84,11 +83,11 @@ class MovingAverageCrossStrategy(AbstractStrategy):
         )
 
         # 2. Update context features
-        context.features["ma_fast"] = ma_fast
-        context.features["ma_slow"] = ma_slow
+        context.features.computed["ma_fast"] = ma_fast
+        context.features.computed["ma_slow"] = ma_slow
 
-        context.features_history.setdefault("ma_fast", []).append(ma_fast)
-        context.features_history.setdefault("ma_slow", []).append(ma_slow)
+        context.features.history.setdefault("ma_fast", []).append(ma_fast)
+        context.features.history.setdefault("ma_slow", []).append(ma_slow)
 
         #2. Warmup logic
         if ma_fast is None or ma_slow is None:

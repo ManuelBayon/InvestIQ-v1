@@ -1,14 +1,18 @@
 from collections.abc import Sequence
 
-from invest_iq.engines.backtest_engine.common.backtest_context import BacktestContext
+from invest_iq.engines.backtest_engine.common.errors import OrchestratorInvariantError
+from invest_iq.engines.backtest_engine.common.types import BacktestView, OrchestratorOutput, StrategyInput, \
+    StrategyOutput, FilterInput
 from invest_iq.engines.strategy_engine.strategies.abstract_strategy import AbstractStrategy
 from invest_iq.engines.strategy_engine.filters.abstract_filter import AbstractFilter
-from invest_iq.engines.strategy_engine.contracts import StrategyInput, OrchestratorOutput, StrategyOutput, FilterInput, \
-    FilterOutput
-
 
 class StrategyOrchestrator:
-
+    """
+    - consumes a read-only view (BacktestView), never a mutable context
+    - strategy + filters are pure transformations (no state mutation)
+    - invariants are checked at the boundary
+    - diagnostics are aggregated deterministically
+    """
     def __init__(
             self,
             strategy: AbstractStrategy,
@@ -17,30 +21,29 @@ class StrategyOrchestrator:
         self._strategy = strategy
         self._filters = list(filters) if filters else []
 
-    def add_filter(
-            self,
-            filter_: AbstractFilter
-    ) -> None:
+    def add_filter(self, filter_: AbstractFilter) -> None:
         self._filters.append(filter_)
 
     def run(
             self,
-            context: BacktestContext
+            view: BacktestView,
     ) -> OrchestratorOutput:
+
+        if view.market.snapshot is None:
+            raise OrchestratorInvariantError("Market snapshot must be initialized before orchestrator.run()")
+
         """
         1. Executes the strategy. Returns strategy_output.
         """
         strat_input = StrategyInput(
-            timestamp=context.timestamp,
-            bar=context.bar,
-            history=context.history
+            timestamp=view.market.timestamp,
+            bar=view.market.bar,
+            history=view.market.history,
         )
-
         strategy_output: StrategyOutput = self._strategy.generate_raw_signals(
             strategy_input=strat_input,
-            context=context
+            view=view
         )
-
         strategy_diagnostics = {
             strategy_output.metadata.name: strategy_output.diagnostics,
         }
@@ -51,7 +54,7 @@ class StrategyOrchestrator:
         filter_in = FilterInput(
             timestamp=strategy_output.timestamp,
             raw_target=strategy_output.raw_target,
-            features=context.features_history
+            features=
         )
         filter_out = FilterOutput(
             timestamp=strategy_output.timestamp,

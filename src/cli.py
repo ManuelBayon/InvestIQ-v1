@@ -7,7 +7,6 @@ from invest_iq.engines.export_engine.registries.config import ExportKey, ExportO
 from invest_iq.engines.export_engine.runner import BacktestExportRunner
 from invest_iq.engines.utilities.logger.factory import LoggerFactory
 from invest_iq.engines.utilities.logger.setup import init_base_logger
-from invest_iq.engines.backtest_engine.common.contracts import BacktestResult
 
 def main() -> None:
 
@@ -27,7 +26,6 @@ def main() -> None:
     for event in bundle.bt_input.events:
         bundle.engine.step(
             event=event,
-            context=bundle.context,
         )
 
     # 4. Export Execution logs
