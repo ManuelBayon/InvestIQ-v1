@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 
 from invest_iq.engines.backtest_engine.bootstrap import bootstrap_backtest_engine
 from invest_iq.engines.backtest_engine.common.enums import FutureCME
@@ -6,6 +7,8 @@ from invest_iq.engines.backtest_engine.common.types import BacktestInput, Instru
 from invest_iq.engines.backtest_engine.engine import BacktestEngine
 
 from invest_iq.config.backtest_config import BacktestConfig
+from invest_iq.engines.export_engine.registries.config import ExportKey, ExportOptions
+from invest_iq.engines.export_engine.runner import BacktestExportRunner
 
 from invest_iq.engines.historical_data_engine.HistoricalDataEngine import HistoricalDataEngine
 from invest_iq.engines.historical_data_engine.backtest_feed import DataFrameBacktestFeed
@@ -19,8 +22,9 @@ from invest_iq.engines.utilities.logger.factory import LoggerFactory
 
 @dataclass
 class BacktestBundle:
-    backtest_engine: BacktestEngine
     backtest_input: BacktestInput
+    backtest_engine: BacktestEngine
+    exporter: BacktestExportRunner
 
 def build_experiment(
         logger_factory: LoggerFactory,
@@ -75,8 +79,20 @@ def build_experiment(
         events=feed
     )
 
-    # 5. Returns the Backtest Bundle
+    # 5. Exporter configuration
+    export_runner = BacktestExportRunner(
+        logger_factory=logger_factory,
+        export_key=ExportKey.EXCEL,
+        export_options=ExportOptions(
+            sink={
+                "filename": FutureCME.MNQ.value + datetime.now().strftime("_%Y-%m-%d_%Hh%M"),
+            }
+        )
+    )
+
+    # 6. Return BacktestBundle
     return BacktestBundle(
+        backtest_input=bt_input,
         backtest_engine=backtest_engine,
-        backtest_input=bt_input
+        exporter=export_runner
     )

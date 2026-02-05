@@ -43,16 +43,7 @@ def main() -> None:
     result = bundle.backtest_engine.run(bt_input=bundle.backtest_input)
 
     # 4. Export Execution logs
-    export_runner = BacktestExportRunner(
-        logger_factory=logger_factory,
-        export_key=ExportKey.EXCEL,
-        export_options=ExportOptions(
-            sink={
-                "filename": FutureCME.MNQ.value + datetime.now().strftime("_%Y-%m-%d_%Hh%M"),
-            }
-        )
-    )
-    export_runner.export(
+    bundle.exporter.export(
         execution_log=result.execution_log,
         metrics=result.metrics
     )
