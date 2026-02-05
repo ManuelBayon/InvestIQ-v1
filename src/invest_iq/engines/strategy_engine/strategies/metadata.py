@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from invest_iq.engines.strategy_engine.enums import MarketField, ComponentType
+from invest_iq.engines.backtest_engine.common.types import MarketField, ComponentType
 
 
 @dataclass(frozen=True)

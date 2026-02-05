@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from invest_iq.engines.backtest_engine.bootstrap import bootstrap_backtest_engine
 from invest_iq.engines.backtest_engine.common.enums import FutureCME
-from invest_iq.engines.backtest_engine.common.types import BacktestInput
+from invest_iq.engines.backtest_engine.common.types import BacktestInput, InstrumentSpec
 from invest_iq.engines.backtest_engine.engine import BacktestEngine
 
 from invest_iq.config.backtest_config import BacktestConfig
@@ -25,20 +25,10 @@ class BacktestBundle:
     engine: BacktestEngine
     bt_input: BacktestInput
 
-def build_experiment(logger_factory: LoggerFactory) -> BacktestBundle:
-
-    config = BacktestConfig(
-        symbol=FutureCME.MNQ.value,
-        asset_class="CONT_FUT",
-        duration_setting="100 D",
-        bar_size_setting=BarSize.ONE_HOUR,
-        strategy=MovingAverageCrossStrategy(
-            fast_window=10,
-            slow_window=50,
-        ),
-        filters=None,
-        initial_cash=100_000,
-    )
+def build_experiment(
+        logger_factory: LoggerFactory,
+        config: BacktestConfig
+) -> BacktestBundle:
 
     # 1. Configure and load historical data
     instrument_settings = ContFutureSettings(
@@ -91,6 +81,5 @@ def build_experiment(logger_factory: LoggerFactory) -> BacktestBundle:
     # 5. Returns the Backtest Bundle
     return BacktestBundle(
         engine=backtest_engine,
-        context=context,
-        bt_input=bt_input,
+        bt_input=bt_input
     )

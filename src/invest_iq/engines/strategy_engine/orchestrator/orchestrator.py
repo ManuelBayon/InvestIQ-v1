@@ -28,6 +28,7 @@ class StrategyOrchestrator:
     ) -> Decision:
 
         decision = self._strategy.decide(view=view)
+
         diagnostics = {
             "strategy": {self._strategy.metadata.name: decision.diagnostics},
             "filters": []
@@ -40,6 +41,6 @@ class StrategyOrchestrator:
         return Decision(
             timestamp=decision.timestamp,
             target_position=decision.target_position,
-            price_ref=decision.price_ref,
+            execution_price=decision.execution_price,
             diagnostics=diagnostics,
         )

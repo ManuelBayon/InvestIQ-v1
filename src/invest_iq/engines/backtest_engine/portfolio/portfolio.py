@@ -16,7 +16,6 @@ class Portfolio(PortfolioProtocol):
     def __init__(
             self,
             logger_factory: LoggerFactory,
-            transition_engine: TransitionEngine,
             initial_cash : float
     ):
         self._logger_factory = logger_factory
@@ -25,7 +24,6 @@ class Portfolio(PortfolioProtocol):
         self._fifo_exec_factory = FIFOExecutionFactory(
             logger_factory=self._logger_factory
         )
-        self.transition_engine = transition_engine
 
         self.current_position: float = 0.0
 

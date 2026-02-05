@@ -104,7 +104,7 @@ def bootstrap_backtest_engine(
     )
 
     # 1. Build Strategy Orchestrator
-    orchestrator = StrategyOrchestrator(
+    strategy_orchestrator = StrategyOrchestrator(
         strategy=strategy,
         filters=filters,
     )
@@ -115,14 +115,13 @@ def bootstrap_backtest_engine(
     # 3. Build Portfolio
     portfolio = Portfolio(
         logger_factory=logger_factory,
-        transition_engine=transition_engine,
         initial_cash=initial_cash
     )
 
     # 4. Build Backtest Engine
     return BacktestEngine(
         logger=logger_factory.child("backtest_engine").get(),
-        orchestrator=orchestrator,
+        strategy_orchestrator=strategy_orchestrator,
         transition_engine=transition_engine,
         portfolio=portfolio,
     )

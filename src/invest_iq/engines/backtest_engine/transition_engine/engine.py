@@ -61,7 +61,7 @@ class TransitionEngine:
         fifo_operations: list[FIFOOperation] = self._fifo_resolver.resolve(
             actions=atomic_actions,
             fifo_queues=fifo_queues,
-            execution_price=decision.price_ref
+            execution_price=decision.execution_price
         )
         # 5.Build Audit Log
         log_entry = TransitionLog(
@@ -70,7 +70,7 @@ class TransitionEngine:
             current_position=current_position,
             target_position=decision.target_position,
             rule_name=rule.RULE_NAME,
-            strategy_name=strategy.STRATEGY_NAME,
+            transition_strategy=strategy.STRATEGY_NAME,
             transition_type=transition_type.name,
             actions_len=len(atomic_actions),
             fifo_ops_len=len(fifo_operations)
@@ -98,7 +98,7 @@ class TransitionEngine:
             log.current_position,
             log.target_position,
             log.rule_name,
-            log.strategy_name,
+            log.transition_strategy,
             log.transition_type,
             log.actions_len,
             log.fifo_ops_len,

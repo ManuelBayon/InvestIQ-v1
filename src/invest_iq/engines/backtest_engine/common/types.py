@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import StrEnum
+from types import MappingProxyType
 from typing import Optional, Any
 
 import pandas as pd
@@ -23,6 +24,7 @@ class MarketField(StrEnum):
     HIGH = "high"
     LOW = "low"
     CLOSE = "close"
+    VOLUME = "volume"
 
 @dataclass(frozen=True)
 class AtomicAction:
@@ -37,7 +39,7 @@ class TransitionLog:
     current_position: float
     target_position: float
     rule_name: str
-    strategy_name: str
+    transition_strategy: str
     transition_type: str
     actions_len: int
     fifo_ops_len: int
@@ -91,17 +93,24 @@ class FIFOOperation:
         cls._next_id += 1
         return id_
 
-@dataclass
-class BacktestResultExport:
-    strategy_name: str
+@dataclass(frozen=True)
+class InstrumentSpec:
+    symbol: str
+    asset_class: str  # "FUT", "EQ", "FX", ...
+    bar_size: BarSize  # "1 min", "5 min", ...
+    timezone: str | None = None
+
+@dataclass(frozen=True)
+class RunResult:
     run_id: str
-    instrument: str
-    metrics: dict[str, float]
+    instrument: InstrumentSpec
+    start: pd.Timestamp
+    end: pd.Timestamp
+    metrics: Mapping[str, float]
     execution_log: list[ExecutionLogEntry]
-    transition_log: list[TransitionLog]
-    parameters: dict[str, Any]
-    start: datetime
-    end: datetime
+    transition_log: list[TransitionLog] = field(default_factory=tuple)
+    diagnostics: Mapping[str, object] = field(default_factory=dict)
+
 
 @dataclass(frozen=True)
 class ResolveContext:
@@ -112,7 +121,7 @@ class ResolveContext:
     """
     action: AtomicAction
     fifo_queues: dict[FIFOSide, list[FIFOPosition]]
-    price_ref: float
+    execution_price: float
 
 
 @dataclass(frozen=True)
@@ -160,15 +169,8 @@ class MarketEvent:
 class Decision:
     timestamp: pd.Timestamp
     target_position: float
-    price_ref: float
+    execution_price: float
     diagnostics: dict[str, object] | None = field(default_factory=dict)
-
-@dataclass(frozen=True)
-class InstrumentSpec:
-    symbol: str
-    asset_class: str  # "FUT", "EQ", "FX", ...
-    bar_size: BarSize  # "1 min", "5 min", ...
-    timezone: str | None = None
 
 @dataclass(frozen=True)
 class BacktestInput:
@@ -178,12 +180,10 @@ class BacktestInput:
 @dataclass(frozen=True)
 class MarketView:
     snapshot: MarketEvent
-    history: Mapping[str, Sequence[float]]
-
+    history: Mapping[MarketField, Sequence[float]]
     @property
     def timestamp(self) -> pd.Timestamp:
         return self.snapshot.timestamp
-
     @property
     def bar(self) -> OHLCV:
         return self.snapshot.bar
@@ -204,19 +204,11 @@ class BacktestView:
     market: MarketView
     execution: ExecutionView
 
-@dataclass(frozen=True)
-class StepRecord:
-    timestamp: pd.Timestamp
-    event: MarketEvent
-    decision: Decision
-    transition_result: list[FIFOOperation]
-    execution_after: ExecutionView
-    diagnostics: Mapping[str, object]
-
 class MarketStore:
+
     def __init__(self):
         self._snapshot: MarketEvent | None = None
-        self._history: dict[str, list[float]] = {}
+        self._history: dict[MarketField, list[float]] = {}
 
     def ingest(self, event: MarketEvent) -> None:
         self._snapshot = event
@@ -226,7 +218,18 @@ class MarketStore:
     def view(self) -> MarketView:
         if self._snapshot is None:
             raise ContextNotInitializedError("No MarketEvent processed yet")
+        # freeze lists into tuples (no accidental mutation)
+        frozen = {k: tuple(v) for k, v in self._history.items()}
         return MarketView(
             snapshot=self._snapshot,
-            history=self._history,
+            history=MappingProxyType(frozen),
         )
+
+@dataclass(frozen=True)
+class StepRecord:
+    timestamp: pd.Timestamp
+    event: MarketEvent
+    decision: Decision
+    transition_result: list[FIFOOperation]
+    execution_after: ExecutionView
+    diagnostics: Mapping[str, object]

@@ -92,9 +92,12 @@ class MovingAverageCrossStrategy(AbstractStrategy):
         ):
             return Decision(
                 timestamp=ts,
-                target_position=0,
-                price_ref=close,
-                diagnostics={"warming_up": True},
+                target_position=0.0,
+                execution_price=close,
+                diagnostics={
+                    "warming_up": True,
+                    "n":n
+                },
             )
 
         # 3. Trading logic
@@ -103,7 +106,7 @@ class MovingAverageCrossStrategy(AbstractStrategy):
         return Decision(
             timestamp=ts,
             target_position=float(raw_target),
-            price_ref=close,
+            execution_price=close,
             diagnostics={
                 "ma_fast": self._ma_fast,
                 "ma_slow": self._ma_slow,
