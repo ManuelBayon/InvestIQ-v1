@@ -4,6 +4,7 @@ from experiments.builder import build_experiment
 from invest_iq.config.backtest_config import BacktestConfig
 
 from invest_iq.engines.backtest_engine.common.enums import FutureCME
+from invest_iq.engines.backtest_engine.common.types import AssetClass
 from invest_iq.engines.export_engine.registries.config import ExportKey, ExportOptions
 from invest_iq.engines.export_engine.runner import BacktestExportRunner
 from invest_iq.engines.historical_data_engine.enums import BarSize
@@ -26,7 +27,7 @@ def main() -> None:
         logger_factory=logger_factory,
         config=BacktestConfig(
             symbol=FutureCME.MNQ.value,
-            asset_class="CONT_FUT",
+            asset_class=AssetClass.CONT_FUT,
             duration_setting="100 D",
             bar_size_setting=BarSize.ONE_HOUR,
             strategy=MovingAverageCrossStrategy(
@@ -39,7 +40,7 @@ def main() -> None:
     )
 
     # 3. Run backtest engine
-    result = bundle.engine.run(bt_input=bundle.bt_input)
+    result = bundle.backtest_engine.run(bt_input=bundle.backtest_input)
 
     # 4. Export Execution logs
     export_runner = BacktestExportRunner(
@@ -53,7 +54,7 @@ def main() -> None:
     )
     export_runner.export(
         execution_log=result.execution_log,
-        metrics={"Realized PnL":bundle.engine.portfolio.realized_pnl}
+        metrics=result.metrics
     )
 
 if __name__ == "__main__":

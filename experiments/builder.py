@@ -10,20 +10,17 @@ from invest_iq.config.backtest_config import BacktestConfig
 from invest_iq.engines.historical_data_engine.HistoricalDataEngine import HistoricalDataEngine
 from invest_iq.engines.historical_data_engine.backtest_feed import DataFrameBacktestFeed
 from invest_iq.engines.historical_data_engine.connection.TWSConnection import TWSConnection
-from invest_iq.engines.historical_data_engine.enums import BarSize
 from invest_iq.engines.historical_data_engine.instruments.ContFutureSettings import ContFutureSettings
 from invest_iq.engines.historical_data_engine.instruments.InstrumentID import InstrumentID
 from invest_iq.engines.historical_data_engine.request.IBKRRequestSettings import IBKRRequestSettings
 from invest_iq.engines.historical_data_engine.source.IBKRDataSource import IBKRDataSource
 
-from invest_iq.engines.strategy_engine.strategies.components.MovingAverageCrossStrategy import MovingAverageCrossStrategy
-
 from invest_iq.engines.utilities.logger.factory import LoggerFactory
 
 @dataclass
 class BacktestBundle:
-    engine: BacktestEngine
-    bt_input: BacktestInput
+    backtest_engine: BacktestEngine
+    backtest_input: BacktestInput
 
 def build_experiment(
         logger_factory: LoggerFactory,
@@ -80,6 +77,6 @@ def build_experiment(
 
     # 5. Returns the Backtest Bundle
     return BacktestBundle(
-        engine=backtest_engine,
-        bt_input=bt_input
+        backtest_engine=backtest_engine,
+        backtest_input=bt_input
     )

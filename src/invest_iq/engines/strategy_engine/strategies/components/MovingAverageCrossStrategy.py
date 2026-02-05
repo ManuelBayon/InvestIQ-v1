@@ -1,5 +1,3 @@
-import datetime
-import uuid
 from collections.abc import Sequence
 
 from invest_iq.engines.backtest_engine.common.types import BacktestView, Decision, MarketField
@@ -12,6 +10,8 @@ class MovingAverageCrossStrategy(AbstractStrategy):
             fast_window: int = 20,
             slow_window: int = 100
     ):
+        self.metadata = None
+
         if fast_window <= 0 or slow_window <= 0:
             raise ValueError("fast_window and slow_window must be positive")
         if fast_window >= slow_window:
@@ -20,26 +20,13 @@ class MovingAverageCrossStrategy(AbstractStrategy):
         self.fast_window= fast_window
         self.slow_window= slow_window
 
-        self.metadata = StrategyMetadata(
-            strategy_uuid=str(uuid.uuid4()),
-            created_at=datetime.datetime.now().isoformat(),
-            name="MovingAverageCrossStrategy",
-            version="1.0.0",
-            description="Simple moving-average crossover strategy (event-driven).",
-            parameters= {
-                "fast_window": fast_window,
-                "slow_window": slow_window
-            },
-            required_fields=[MarketField.CLOSE],
-            produced_features=["ma_fast", "ma_slow"],
-            price_type=MarketField.CLOSE,
-        )
-
         self._ma_fast: float | None = None
         self._ma_slow: float | None = None
 
     def reset(self) -> None:
-        """Call this at the start of each run if you reuse the instance."""
+        """
+        Call this at the start of each run if you reuse the instance.
+        """
         self._ma_fast = None
         self._ma_slow = None
 
@@ -71,20 +58,7 @@ class MovingAverageCrossStrategy(AbstractStrategy):
         close = bar.close
         n = len(history)
 
-        if n >= self.fast_window:
-            self._ma_fast = self._compute_sma_incremental(
-                window_size=self.fast_window,
-                previous_sma=self._ma_fast,
-                history=history,
-            )
-        if n >= self.slow_window:
-            self._ma_slow = self._compute_sma_incremental(
-                window_size=self.slow_window,
-                previous_sma=self._ma_slow,
-                history=history,
-            )
-
-        #2. Warmup logic
+        #1. Warmup logic
         if (
             n < self.slow_window
             or self._ma_fast is None
@@ -98,6 +72,20 @@ class MovingAverageCrossStrategy(AbstractStrategy):
                     "warming_up": True,
                     "n":n
                 },
+            )
+
+        # 2. Compute features
+        if n >= self.fast_window:
+            self._ma_fast = self._compute_sma_incremental(
+                window_size=self.fast_window,
+                previous_sma=self._ma_fast,
+                history=history,
+            )
+        if n >= self.slow_window:
+            self._ma_slow = self._compute_sma_incremental(
+                window_size=self.slow_window,
+                previous_sma=self._ma_slow,
+                history=history,
             )
 
         # 3. Trading logic

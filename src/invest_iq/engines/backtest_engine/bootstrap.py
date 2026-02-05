@@ -13,7 +13,7 @@ from invest_iq.engines.backtest_engine.transition_engine.fifo.resolve_strategies
 from invest_iq.engines.backtest_engine.transition_engine.transition_rules.registry import TransitionRuleRegistry
 from invest_iq.engines.backtest_engine.transition_engine.transition_strategies.registry import TransitionStrategyRegistry
 from invest_iq.engines.strategy_engine.filters.abstract_filter import AbstractFilter
-from invest_iq.engines.strategy_engine.orchestrator.orchestrator import StrategyOrchestrator
+from invest_iq.engines.strategy_engine.orchestrator import StrategyOrchestrator
 from invest_iq.engines.strategy_engine.strategies.abstract_strategy import AbstractStrategy
 from invest_iq.engines.utilities.import_tools import import_submodules
 from invest_iq.engines.utilities.logger.factory import LoggerFactory

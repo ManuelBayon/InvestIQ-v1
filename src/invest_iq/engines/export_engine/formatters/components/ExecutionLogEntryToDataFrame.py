@@ -5,7 +5,7 @@ import pandas as pd
 from invest_iq.engines.backtest_engine.common.types import ExecutionLogEntry
 from invest_iq.engines.export_engine.formatters.base_batch_formatter import BatchFormatter
 from invest_iq.engines.utilities.logger.protocol import LoggerProtocol
-from invest_iq.engines.strategy_engine.utils.time_utils import format_utc_offset
+from invest_iq.utilities.time_utils import format_utc_offset
 
 
 class BacktestDataFrameFormatter(BatchFormatter[ExecutionLogEntry, pd.DataFrame]):

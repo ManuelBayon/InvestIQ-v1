@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from pathlib import Path
 
 from openpyxl import load_workbook
@@ -30,7 +31,7 @@ class BacktestExportRunner:
     def export(
         self,
         execution_log: list[ExecutionLogEntry],
-        metrics: dict[str, float] | None = None,
+        metrics: Mapping[str, float] | None = None,
     ) -> None:
 
         export_service = self._export_service_factory.create_backtest_batch_export_service(

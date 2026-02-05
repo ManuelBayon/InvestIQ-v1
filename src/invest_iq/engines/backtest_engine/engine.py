@@ -1,5 +1,3 @@
-from collections.abc import Mapping, Sequence
-
 import pandas as pd
 
 from invest_iq.engines.backtest_engine.common.errors import BacktestInvariantError
@@ -8,7 +6,7 @@ from invest_iq.engines.backtest_engine.common.types import MarketStore, Executio
 from invest_iq.engines.backtest_engine.portfolio.portfolio import Portfolio
 
 from invest_iq.engines.backtest_engine.transition_engine.engine import TransitionEngine
-from invest_iq.engines.strategy_engine.orchestrator.orchestrator import StrategyOrchestrator
+from invest_iq.engines.strategy_engine.orchestrator import StrategyOrchestrator
 
 from invest_iq.engines.utilities.logger.protocol import LoggerProtocol
 

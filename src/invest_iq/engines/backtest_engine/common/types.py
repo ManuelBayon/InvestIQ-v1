@@ -26,6 +26,9 @@ class MarketField(StrEnum):
     CLOSE = "close"
     VOLUME = "volume"
 
+class AssetClass(StrEnum):
+    CONT_FUT = "CONT_FUT"
+
 @dataclass(frozen=True)
 class AtomicAction:
     type : AtomicActionType
