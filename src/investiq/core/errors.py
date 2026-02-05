@@ -1,0 +1,3 @@
+
+class ContextNotInitializedError(RuntimeError):
+    pass

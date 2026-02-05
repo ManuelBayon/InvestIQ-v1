@@ -1,0 +1,4 @@
+investiq
+investiq_research
+investtiq_app
+settings

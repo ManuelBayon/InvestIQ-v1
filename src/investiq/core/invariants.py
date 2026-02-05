@@ -1,0 +1,2 @@
+class BacktestInvariantError(RuntimeError):
+    pass

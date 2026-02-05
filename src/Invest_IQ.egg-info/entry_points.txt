@@ -1,0 +1,2 @@
+[console_scripts]
+invest-iq-backtest = investiq_app.cli:main
