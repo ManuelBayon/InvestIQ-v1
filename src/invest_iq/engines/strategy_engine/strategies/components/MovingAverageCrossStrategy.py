@@ -2,8 +2,7 @@ import datetime
 import uuid
 from collections.abc import Sequence
 
-from invest_iq.engines.backtest_engine.common.backtest_context import BacktestContext, StrategyInput, StrategyOutput
-from invest_iq.engines.strategy_engine.enums import MarketField
+from invest_iq.engines.backtest_engine.common.types import BacktestView, Decision, MarketField
 from invest_iq.engines.strategy_engine.strategies.abstract_strategy import AbstractStrategy, StrategyMetadata
 
 class MovingAverageCrossStrategy(AbstractStrategy):
@@ -13,8 +12,14 @@ class MovingAverageCrossStrategy(AbstractStrategy):
             fast_window: int = 20,
             slow_window: int = 100
     ):
+        if fast_window <= 0 or slow_window <= 0:
+            raise ValueError("fast_window and slow_window must be positive")
+        if fast_window >= slow_window:
+            raise ValueError("fast_window must be < slow_window for a classic MA cross")
+
         self.fast_window= fast_window
         self.slow_window= slow_window
+
         self.metadata = StrategyMetadata(
             strategy_uuid=str(uuid.uuid4()),
             created_at=datetime.datetime.now().isoformat(),
@@ -29,85 +34,78 @@ class MovingAverageCrossStrategy(AbstractStrategy):
             produced_features=["ma_fast", "ma_slow"],
             price_type=MarketField.CLOSE,
         )
+
+        self._ma_fast: float | None = None
+        self._ma_slow: float | None = None
+
+    def reset(self) -> None:
+        """Call this at the start of each run if you reuse the instance."""
+        self._ma_fast = None
+        self._ma_slow = None
+
     @staticmethod
     def _compute_sma_incremental(
             window_size: int,
             previous_sma: float | None,
-            hist_close: Sequence[float],
+            history: Sequence[float],
     ) -> float | None:
 
-        len_hist_close = len(hist_close)
-
-        # Not enough data
-        if len_hist_close < window_size:
+        n = len(history)
+        if n < window_size:
             return None
+        if n == window_size:
+            return sum(history[-window_size:]) / window_size
 
-        # First full window : compute full SMA
-        if len_hist_close == window_size:
-            return sum(hist_close[-window_size:]) / window_size
+        close_t = history[-1]
+        close_out = history[-window_size - 1]
+        return previous_sma + (close_t - close_out) / window_size
 
-        # Incremental update
-        close_t = hist_close[-1]
-        close_out = hist_close[-window_size - 1]
-        return previous_sma + (close_t - close_out)/window_size
+    def decide(self, view: BacktestView) -> Decision:
+        ts = view.market.timestamp
+        bar = view.market.bar
 
-    def generate_raw_signals(
-            self,
-            strategy_input: StrategyInput,
-            context: BacktestContext
-    ) -> StrategyOutput:
+        history = view.market.history.get(MarketField.CLOSE)
+        if history is None:
+            raise KeyError("No close history available")
 
-        bar = strategy_input.bar
-
-        for field in self.metadata.required_fields:
-            if not hasattr(bar, field):
-                raise KeyError(f"Unknown OHLCV field: {field}")
-
-        ts = strategy_input.timestamp
         close = bar.close
-        hist_close = strategy_input.history[MarketField.CLOSE]
+        n = len(history)
 
-        # 1. Compute features incrementally
-        prev_fast = context.features.computed.get("ma_fast")
-        prev_slow = context.features.computed.get("ma_slow")
-
-        ma_fast = self._compute_sma_incremental(
-            window_size=self.fast_window,
-            previous_sma=prev_fast,
-            hist_close=hist_close,
-        )
-        ma_slow = self._compute_sma_incremental(
-            window_size=self.slow_window,
-            previous_sma=prev_slow,
-            hist_close=hist_close,
-        )
-
-        # 2. Update context features
-        context.features.computed["ma_fast"] = ma_fast
-        context.features.computed["ma_slow"] = ma_slow
-
-        context.features.history.setdefault("ma_fast", []).append(ma_fast)
-        context.features.history.setdefault("ma_slow", []).append(ma_slow)
+        if n >= self.fast_window:
+            self._ma_fast = self._compute_sma_incremental(
+                window_size=self.fast_window,
+                previous_sma=self._ma_fast,
+                history=history,
+            )
+        if n >= self.slow_window:
+            self._ma_slow = self._compute_sma_incremental(
+                window_size=self.slow_window,
+                previous_sma=self._ma_slow,
+                history=history,
+            )
 
         #2. Warmup logic
-        if ma_fast is None or ma_slow is None:
-            return StrategyOutput(
+        if (
+            n < self.slow_window
+            or self._ma_fast is None
+            or self._ma_slow is None
+        ):
+            return Decision(
                 timestamp=ts,
-                raw_target=0,
-                price=close,
-                price_type=MarketField.CLOSE,
-                metadata=self.metadata,
+                target_position=0,
+                price_ref=close,
                 diagnostics={"warming_up": True},
             )
 
         # 3. Trading logic
-        raw_target = int(ma_fast > ma_slow) - int(ma_fast < ma_slow)
+        raw_target = int(self._ma_fast > self._ma_slow) - int(self._ma_fast < self._ma_slow)
 
-        return StrategyOutput(
+        return Decision(
             timestamp=ts,
-            raw_target=raw_target,
-            price=close,
-            price_type=MarketField.CLOSE,
-            metadata=self.metadata,
-            diagnostics={},
+            target_position=float(raw_target),
+            price_ref=close,
+            diagnostics={
+                "ma_fast": self._ma_fast,
+                "ma_slow": self._ma_slow,
+            },
         )

@@ -1,5 +1,6 @@
 from collections.abc import Mapping
 
+from invest_iq.engines.backtest_engine.common.errors import BacktestInvariantError
 from invest_iq.engines.backtest_engine.common.types import MarketStore, ExecutionView, MarketEvent, BacktestView, \
     StepRecord
 from invest_iq.engines.backtest_engine.portfolio.portfolio import Portfolio
@@ -43,39 +44,37 @@ class BacktestEngine:
         self._market.ingest(event)
         market_view = self._market.view()
 
-        # 2. Build read-only backtest view for orchestrator / strategies
+        # 2) Build read-only view
         view = BacktestView(
             market=market_view,
             execution=self._execution_view(),
         )
 
-        # 3. Pure computation
-        orchestrator_out = self._orchestrator.run(view)
+        # 3) Pure decision
+        decision = self._orchestrator.run(view)
 
-        # 4. Pure adaptation
-        portfolio_signal = SignalAdapter.adapt(orchestrator_out)
+        if decision.timestamp != view.market.timestamp:
+            raise BacktestInvariantError("Decision timestamp must match market timestamp")
 
-        # 5. Pure transition computation
-        transition_result = self._transition_engine.process(
-            timestamp=portfolio_signal.timestamp,
-            current_position=self._portfolio.current_position,
-            target_position=portfolio_signal.target_position,
-            price=portfolio_signal.price,
+        # 4) Pure transition computation
+        ops = self._transition_engine.process(
+            decision=decision,
+            current_position=view.execution.current_position,
             fifo_queues=self._portfolio.fifo_queues,
         )
 
-        # 6. Mutate portfolio
-        self._portfolio.apply_operations(transition_result)
+        # 5) Mutate portfolio
+        self._portfolio.apply_operations(ops)
 
-        # 7. Immutable audit record
+        # 6. Immutable audit record
         exec_after = self._execution_view()
         return StepRecord(
             timestamp=market_view.timestamp,
             event=event,
-            orchestrator_output=orchestrator_out,
-            transition_result=transition_result,
+            decision=decision,
+            transition_result=ops,
             execution_after=exec_after,
-            diagnostics=orchestrator_out.diagnostics,
+            diagnostics=decision.diagnostics,
         )
 
     @property

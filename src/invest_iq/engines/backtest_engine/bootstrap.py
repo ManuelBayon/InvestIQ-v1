@@ -1,4 +1,6 @@
-from invest_iq.engines.backtest_engine.bootstraps.common import validate_registry
+from collections.abc import Callable
+from typing import TypeVar
+
 from invest_iq.engines.backtest_engine.common.enums import (
     CurrentState, Event, TransitionType, AtomicActionType,
     GuardName, FIFOOperationType)
@@ -13,9 +15,37 @@ from invest_iq.engines.backtest_engine.transition_engine.transition_strategies.r
 from invest_iq.engines.strategy_engine.filters.abstract_filter import AbstractFilter
 from invest_iq.engines.strategy_engine.orchestrator.orchestrator import StrategyOrchestrator
 from invest_iq.engines.strategy_engine.strategies.abstract_strategy import AbstractStrategy
+from invest_iq.engines.utilities.import_tools import import_submodules
 from invest_iq.engines.utilities.logger.factory import LoggerFactory
 from invest_iq.engines.utilities.logger.protocol import LoggerProtocol
 
+
+T = TypeVar("T")
+def validate_registry(
+        logger: LoggerProtocol,
+        name: str,
+        import_path: str,
+        expected: set[T],
+        available_fn: Callable[[], list[T]]
+) -> None:
+    """
+    Generic validation for a registries:
+    - Import modules from a path (to trigger registrations)
+    - Check that available matches expected
+    - Log summary, raises if mismatch
+    """
+    import_submodules(import_path)
+
+    registered: set[T] = set(available_fn())
+    missing = expected - registered
+    extra = registered - expected
+
+    if missing:
+        raise RuntimeError(f"Missing {name}: {missing}")
+    if extra:
+        raise RuntimeError(f"Unexpected {name}: {extra}")
+
+    logger.info(f"{name} registered: {len(registered)} / {len(expected)}")
 
 def _validate_registries(logger: LoggerProtocol) -> None:
     """
@@ -59,6 +89,8 @@ def _validate_registries(logger: LoggerProtocol) -> None:
         FIFOExecutionRegistry.available,
     )
     logger.info("Backtest engines initialized successfully.")
+
+
 
 def bootstrap_backtest_engine(
         logger_factory: LoggerFactory,

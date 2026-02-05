@@ -1,5 +1,5 @@
 class ContextNotInitializedError(RuntimeError):
     pass
 
-class OrchestratorInvariantError(RuntimeError):
+class BacktestInvariantError(RuntimeError):
     pass

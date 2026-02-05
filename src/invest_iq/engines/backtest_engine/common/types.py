@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import StrEnum
 from typing import Optional, Any
 
 import pandas as pd
@@ -8,9 +9,20 @@ from dataclasses import dataclass, field
 
 from invest_iq.engines.backtest_engine.common.errors import ContextNotInitializedError
 from invest_iq.engines.historical_data_engine.enums import BarSize
-from invest_iq.engines.strategy_engine.enums import MarketField
-from invest_iq.engines.strategy_engine.strategies.metadata import StrategyMetadata
 from invest_iq.engines.backtest_engine.common.enums import AtomicActionType, CurrentState, Event, FIFOOperationType, FIFOSide
+
+class Version(StrEnum):
+    V1= "1.0"
+
+class ComponentType(StrEnum):
+    STRATEGY = "strategy"
+    FILTER = "filter"
+
+class MarketField(StrEnum):
+    OPEN = "open"
+    HIGH = "high"
+    LOW = "low"
+    CLOSE = "close"
 
 @dataclass(frozen=True)
 class AtomicAction:
@@ -100,7 +112,7 @@ class ResolveContext:
     """
     action: AtomicAction
     fifo_queues: dict[FIFOSide, list[FIFOPosition]]
-    execution_price: float
+    price_ref: float
 
 
 @dataclass(frozen=True)
@@ -144,46 +156,12 @@ class MarketEvent:
     symbol: str | None = None
     bar_size: str | None = None
 
-
 @dataclass(frozen=True)
-class StrategyInput:
-    timestamp: pd.Timestamp
-    bar: OHLCV
-    history: Mapping[str, Sequence[float]]
-
-
-@dataclass(frozen=True)
-class FilterInput:
-    timestamp: pd.Timestamp
-    raw_target: float
-    features: dict[str, object] | None = field(default_factory=dict)
-
-
-@dataclass(frozen=True)
-class StrategyOutput:
-    timestamp: pd.Timestamp
-    raw_target: float
-    price: float
-    price_type: MarketField
-    metadata: StrategyMetadata
-    diagnostics: dict[str, object] | None = field(default_factory=dict)
-
-
-@dataclass(frozen=True)
-class FilterOutput:
+class Decision:
     timestamp: pd.Timestamp
     target_position: float
+    price_ref: float
     diagnostics: dict[str, object] | None = field(default_factory=dict)
-
-
-@dataclass(frozen=True)
-class OrchestratorOutput:
-    timestamp: pd.Timestamp
-    target_position: float
-    price_type: MarketField
-    price: float
-    diagnostics: dict[str, object] | None = field(default_factory=dict)
-
 
 @dataclass(frozen=True)
 class InstrumentSpec:
@@ -192,69 +170,10 @@ class InstrumentSpec:
     bar_size: BarSize  # "1 min", "5 min", ...
     timezone: str | None = None
 
-
 @dataclass(frozen=True)
 class BacktestInput:
     instrument: InstrumentSpec
     events: Iterable[MarketEvent]
-
-
-@dataclass(frozen=True)
-class ModelState:
-    strategy: StrategyOutput | None = None
-    filtered: FilterOutput | None = None
-    orchestrator: OrchestratorOutput | None = None
-
-
-@dataclass(frozen=True)
-class ExecutionState:
-    current_position: float = 0.0
-    cash: float = 0.0
-    realized_pnl: float = 0.0
-    unrealized_pnl: float = 0.0
-    fifo_queues: dict[FIFOSide, list[FIFOPosition]] = field(default_factory=dict)
-    execution_log: list[ExecutionLogEntry] = field(default_factory=list)
-
-
-@dataclass(frozen=True)
-class MarketState:
-    snapshot: MarketEvent | None = None
-    series: dict[str, list[float]] = field(default_factory=dict)
-
-
-@dataclass(frozen=True)
-class FeatureState:
-    computed: dict[str, float] = field(default_factory=dict)
-    history: dict[str, list[float]] = field(default_factory=dict)
-
-
-@dataclass(frozen=True)
-class BacktestState:
-    model: ModelState = field(default_factory=ModelState)
-    execution: ExecutionState = field(default_factory=ExecutionState)
-    market: MarketState = field(default_factory=MarketState)
-    features: FeatureState = field(default_factory=FeatureState)
-
-    @property
-    def timestamp(self) -> pd.Timestamp:
-        if self.market.snapshot is None:
-            raise ContextNotInitializedError("No MarketEvent processed yet")
-        return self.market.snapshot.timestamp
-
-    @property
-    def bar(self) -> OHLCV:
-        if self.market.snapshot is None:
-            raise ContextNotInitializedError("No MarketEvent processed yet")
-        return self.market.snapshot.bar
-
-
-@dataclass
-class BacktestResult:
-    execution_log: list[ExecutionLogEntry]
-    final_cash: float
-    realized_pnl: float
-    unrealized_pnl: float
-    diagnostics: dict[str, dict[str, float]] = field(default_factory=dict)
 
 @dataclass(frozen=True)
 class MarketView:
@@ -289,7 +208,7 @@ class BacktestView:
 class StepRecord:
     timestamp: pd.Timestamp
     event: MarketEvent
-    orchestrator_output: OrchestratorOutput
+    decision: Decision
     transition_result: list[FIFOOperation]
     execution_after: ExecutionView
     diagnostics: Mapping[str, object]
@@ -302,7 +221,7 @@ class MarketStore:
     def ingest(self, event: MarketEvent) -> None:
         self._snapshot = event
         for k, v in event.bar.items():
-            self._history.setdefault(k, []).append(v)
+            self._history.setdefault(MarketField(k), []).append(v)
 
     def view(self) -> MarketView:
         if self._snapshot is None:
@@ -311,4 +230,3 @@ class MarketStore:
             snapshot=self._snapshot,
             history=self._history,
         )
-

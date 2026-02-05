@@ -2,7 +2,8 @@ from datetime import datetime
 from typing import Optional
 
 from invest_iq.engines.backtest_engine.common.enums import FIFOSide, TransitionType
-from invest_iq.engines.backtest_engine.common.types import AtomicAction, TransitionLog, FIFOPosition, FIFOOperation
+from invest_iq.engines.backtest_engine.common.types import AtomicAction, TransitionLog, FIFOPosition, FIFOOperation, \
+    Decision
 
 from invest_iq.engines.backtest_engine.transition_engine.fifo.resolver import FIFOResolver
 from invest_iq.engines.backtest_engine.transition_engine.transition_rules.factory import TransitionRuleFactory
@@ -28,17 +29,15 @@ class TransitionEngine:
 
     def process(
             self,
-            timestamp : datetime,
+            decision: Decision,
             current_position : float,
-            target_position : float,
-            price : float,
             fifo_queues : dict[FIFOSide, list[FIFOPosition]],
     ) -> list[FIFOOperation]:
 
         # 1. Build context
         state, event = TransitionRuleContextBuilder().build(
             current_position=current_position,
-            target_position=target_position
+            target_position=decision.target_position
         )
         # 2. Get the transition rule and resolve transition
         rule: TransitionRule = self._transition_rule_factory.create(
@@ -47,7 +46,7 @@ class TransitionEngine:
         )
         transition_type: TransitionType = rule.classify(
             current_position=current_position,
-            target_position=target_position
+            target_position=decision.target_position
         )
         # 3. Get the transition strategy and resolve the atomic actions
         strategy : TransitionStrategy = self._transition_strategy_factory.create(
@@ -55,21 +54,21 @@ class TransitionEngine:
         )
         atomic_actions: list[AtomicAction] = strategy.resolve(
             current_position=current_position,
-            target_position=target_position,
-            timestamp=timestamp
+            target_position=decision.target_position,
+            timestamp=decision.timestamp
         )
         # 4. Resolve fifo operations
         fifo_operations: list[FIFOOperation] = self._fifo_resolver.resolve(
             actions=atomic_actions,
             fifo_queues=fifo_queues,
-            execution_price=price
+            execution_price=decision.price_ref
         )
         # 5.Build Audit Log
         log_entry = TransitionLog(
             state=state,
             event=event,
             current_position=current_position,
-            target_position=target_position,
+            target_position=decision.target_position,
             rule_name=rule.RULE_NAME,
             strategy_name=strategy.STRATEGY_NAME,
             transition_type=transition_type.name,

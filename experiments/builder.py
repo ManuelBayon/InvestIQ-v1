@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from invest_iq.engines.backtest_engine.bootstraps.backtest_engine_bootstrap import bootstrap_backtest_engine
-from invest_iq.engines.backtest_engine.common.backtest_context import BacktestContext, BacktestInput, InstrumentSpec
+from invest_iq.engines.backtest_engine.bootstrap import bootstrap_backtest_engine
 from invest_iq.engines.backtest_engine.common.enums import FutureCME
+from invest_iq.engines.backtest_engine.common.types import BacktestInput
 from invest_iq.engines.backtest_engine.engine import BacktestEngine
 
 from invest_iq.config.backtest_config import BacktestConfig
@@ -23,7 +23,6 @@ from invest_iq.engines.utilities.logger.factory import LoggerFactory
 @dataclass
 class BacktestBundle:
     engine: BacktestEngine
-    context: BacktestContext
     bt_input: BacktestInput
 
 def build_experiment(logger_factory: LoggerFactory) -> BacktestBundle:
@@ -88,9 +87,6 @@ def build_experiment(logger_factory: LoggerFactory) -> BacktestBundle:
         ),
         events=feed
     )
-
-    # 4. Initialize Backtest context
-    context = BacktestContext()
 
     # 5. Returns the Backtest Bundle
     return BacktestBundle(
