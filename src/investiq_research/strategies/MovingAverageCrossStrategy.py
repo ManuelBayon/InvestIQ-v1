@@ -66,15 +66,15 @@ class MovingAverageCrossStrategy:
     def decide(self, view: BacktestView) -> Decision:
         ts = view.market.timestamp
         bar = view.market.bar
+        close = bar.close
 
         history = view.market.history.get(MarketField.CLOSE)
         if history is None:
             raise KeyError("No close history available")
 
-        close = bar.close
         n = len(history)
 
-        #1. Update indicators if enough history
+        #1 Update indicators if enough history
         if n >= self.fast_window:
             self._ma_fast = self._compute_sma_incremental(
                 window_size=self.fast_window,
@@ -88,6 +88,7 @@ class MovingAverageCrossStrategy:
                 history=history,
             )
 
+        # 2. Return canonical Decision (target_position == 0)
         if self._ma_fast is None or self._ma_slow is None:
             return Decision(
                 timestamp=ts,
@@ -102,8 +103,14 @@ class MovingAverageCrossStrategy:
             )
 
         # 3. Trading logic
-        raw_target = int(self._ma_fast > self._ma_slow) - int(self._ma_fast < self._ma_slow)
+        if self._ma_fast > self._ma_slow:
+            raw_target = 1
+        elif self._ma_fast < self._ma_slow:
+            raw_target = -1
+        else:
+            raw_target = 0
 
+        # 4. Return Decision
         return Decision(
             timestamp=ts,
             target_position=float(raw_target),
