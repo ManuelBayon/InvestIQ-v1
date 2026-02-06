@@ -2,9 +2,9 @@ from dataclasses import dataclass
 
 from ib_insync import Future
 
-from engine.historical_data_engine.instruments.AbstractInstrumentSettings import InstrumentSettings
-from engine.historical_data_engine.enums import Exchange, Currency, AssetType, WhatToShow
-from engine.historical_data_engine.instruments.InstrumentID import InstrumentID
+from investiq.data.historical_data_engine.enums import Exchange, Currency, AssetType, WhatToShow
+from investiq.data.historical_data_engine.instruments.AbstractInstrumentSettings import InstrumentSettings
+from investiq.data.historical_data_engine.instruments.InstrumentID import InstrumentID
 
 
 @dataclass

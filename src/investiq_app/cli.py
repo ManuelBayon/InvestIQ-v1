@@ -4,10 +4,7 @@ from investiq.data.historical_data_engine.enums import BarSize
 from investiq_app.experiments.config import BacktestConfig
 from investiq_research.strategies.MovingAverageCrossStrategy import MovingAverageCrossStrategy
 
-
 def main() -> None:
-
-    # 1. Backtest configuration
     bundle = build_experiment(
         config=BacktestConfig(
             symbol=FutureCME.MNQ,
@@ -22,11 +19,7 @@ def main() -> None:
             initial_cash=100_000,
         )
     )
-
-    # 2. Run experiments
     result = bundle.backtest_engine.run(bt_input=bundle.backtest_input)
-
-    # 3. Export execution logs
     bundle.exporter.export(
         execution_log=result.execution_log,
         metrics=result.metrics
