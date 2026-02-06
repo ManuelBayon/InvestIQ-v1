@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import StrEnum
 
-from investiq.data.historical_data_engine.enums import BarSize
+from investiq.data.legagy_data_engine.enums import BarSize
 
 
 class AssetClass(StrEnum):

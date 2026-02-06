@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from investiq.api.filter import Filter
 from investiq.api.instruments import AssetClass
 from investiq.api.strategy import Strategy
-from investiq.data.historical_data_engine.enums import BarSize
+from investiq.data.legagy_data_engine.enums import BarSize
 
 
 @dataclass
