@@ -13,10 +13,8 @@ class FeatureView:
     """
     values: Mapping[str, float]
     history: Mapping[str, Sequence[float]]
-    ready: bool
-
-    def get(self, name: str) -> float | None:
-        return self.values.get(name)
+    pipeline_ready: Mapping[str, bool]
+    global_ready: bool
 
     def require(self, name: str) -> float:
         v = self.values.get(name)
@@ -24,8 +22,17 @@ class FeatureView:
             raise KeyError(f"Missing feature: {name}")
         return v
 
+    def __getitem__(self, name: str) -> float:
+        return self.require(name)
+
     def series(self, name: str) -> Sequence[float]:
         s = self.history.get(name)
         if s is None:
             raise KeyError(f"Missing feature history: {name}")
         return s
+
+    def pipeline_is_ready(self, pipeline: str) -> bool:
+        v = self.pipeline_ready.get(pipeline)
+        if v is None:
+            raise KeyError(f"Unknown pipeline: {pipeline}")
+        return bool(v)

@@ -3,9 +3,10 @@ import pandas as pd
 from investiq.api.backtest import BacktestView, BacktestInput
 from investiq.api.execution import ExecutionView, RunResult
 from investiq.api.market import MarketEvent
+from investiq.core.features.store import FeatureStore
 from investiq.core.invariants import BacktestInvariantError
 from investiq.core.market_store import MarketStore
-from investiq.utilities.logger.protocol import LoggerProtocol
+from investiq.utilities.logger.factory import LoggerFactory
 from investiq.execution.portfolio.portfolio import Portfolio
 from investiq.execution.transition.engine import TransitionEngine
 from investiq.core.orchestrator import StrategyOrchestrator
@@ -16,17 +17,19 @@ class BacktestEngine:
 
     def __init__(
             self,
-            logger: LoggerProtocol,
+            logger_factory: LoggerFactory,
             strategy_orchestrator: StrategyOrchestrator,
             transition_engine: TransitionEngine,
             portfolio: Portfolio,
             market_store: MarketStore | None = None,
+            feature_store: FeatureStore | None = None,
     ):
-        self._logger = logger
+        self._logger = logger_factory.child("BacktestEngine").get()
         self._strategy_orchestrator = strategy_orchestrator
         self._transition_engine = transition_engine
         self._portfolio = portfolio
         self._market = market_store or MarketStore()
+        self._feature_store = feature_store or FeatureStore(logger=logger_factory.child("FeatureStore").get())
 
     def _execution_view(self) -> ExecutionView:
         return ExecutionView(
@@ -41,17 +44,18 @@ class BacktestEngine:
             event: MarketEvent,
     ) -> StepRecord:
 
-        self._market.ingest(event)
-        market_view = self._market.view()
+        self._market.ingest(event=event)
+        self._feature_store.ingest(market_store=self._market)
 
         # 1. Build read-only view
         view = BacktestView(
-            market=market_view,
+            market=self._market.view(),
+            features=self._feature_store.view(),
             execution=self._execution_view(),
         )
 
         # 2. Run decision pipeline
-        decision = self._strategy_orchestrator.run(view)
+        decision = self._strategy_orchestrator.run(view=view)
 
         if decision.timestamp != view.market.timestamp:
             raise BacktestInvariantError("Decision timestamp must match market timestamp")
@@ -69,7 +73,7 @@ class BacktestEngine:
         # 6. Immutable audit record
         exec_after = self._execution_view()
         return StepRecord(
-            timestamp=market_view.timestamp,
+            timestamp=view.market.timestamp,
             event=event,
             decision=decision,
             transition_result=ops,

@@ -32,7 +32,7 @@ def bootstrap_backtest_engine(
 
     # 4. Build Backtest Engine
     return BacktestEngine(
-        logger=logger_factory.child("backtest_engine").get(),
+        logger_factory=logger_factory,
         strategy_orchestrator=strategy_orchestrator,
         transition_engine=transition_engine,
         portfolio=portfolio,

@@ -21,28 +21,23 @@ class StrategyOrchestrator:
         self._strategy = strategy
         self._filters = list(filters) if filters else []
 
-    def add_filter(self, fltr: Filter) -> None:
-        self._filters.append(fltr)
+    def run(self, *, view: BacktestView) -> Decision:
 
-    def run(
-            self,
-            view: BacktestView,
-    ) -> Decision:
-
-        decision = self._strategy.decide(view=view)
+        d0 = self._strategy.decide(view=view)
 
         diagnostics = {
-            "strategy": {self._strategy.metadata.name: decision.diagnostics},
+            "strategy": {self._strategy.metadata.name: d0.diagnostics},
             "filters": []
         }
 
+        d = d0
         for f in self._filters:
-            decision = f.apply(view=view, decision=decision)
-            diagnostics["filters"].append({f.metadata.name: decision.diagnostics})
+            d = f.apply(view=view, decision=d)
+            diagnostics["filters"].append({f.metadata.name: d.diagnostics})
 
         return Decision(
-            timestamp=decision.timestamp,
-            target_position=decision.target_position,
-            execution_price=decision.execution_price,
+            timestamp=d.timestamp,
+            target_position=d.target_position,
+            execution_price=d.execution_price,
             diagnostics=diagnostics,
         )
