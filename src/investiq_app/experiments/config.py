@@ -8,6 +8,7 @@ from investiq.data.legagy_data_engine.enums import BarSize
 
 @dataclass
 class BacktestConfig:
+    debug: bool
     symbol: str
     asset_class: AssetClass
     duration_setting : str

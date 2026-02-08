@@ -7,6 +7,7 @@ from investiq_research.strategies.MovingAverageCrossStrategy import MovingAverag
 def main() -> None:
     bundle = build_experiment(
         config=BacktestConfig(
+            debug=False,
             symbol=FutureCME.MNQ,
             asset_class=AssetClass.CONT_FUT,
             duration_setting="100 D",

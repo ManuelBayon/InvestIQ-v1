@@ -1,6 +1,8 @@
 from investiq.api.filter import Filter
 from investiq.api.strategy import Strategy
 from investiq.core.engine import BacktestEngine
+from investiq.core.features.registry import FeaturePipelineRegistry
+from investiq.core.features.store import FeatureStore
 
 from investiq.execution.portfolio.portfolio import Portfolio
 from investiq.execution.transition.engine import TransitionEngine
@@ -15,8 +17,11 @@ def bootstrap_backtest_engine(
         filters: list[Filter] | None = None
 ) -> BacktestEngine:
 
+    feature_store = FeatureStore(logger=logger_factory.child("Feature store").get())
+
     # 1. Build Strategy Orchestrator
     strategy_orchestrator = StrategyOrchestrator(
+        available_pipelines=feature_store.pipeline_names(),
         strategy=strategy,
         filters=filters,
     )

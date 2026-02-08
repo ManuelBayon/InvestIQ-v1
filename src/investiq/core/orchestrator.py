@@ -15,9 +15,18 @@ class StrategyOrchestrator:
     """
     def __init__(
             self,
+            available_pipelines: frozenset[str],
             strategy: Strategy,
             filters: Sequence[Filter] | None = None
     ):
+        # --- CONFIG VALIDATION  ---
+        required = strategy.metadata.required_pipelines
+        missing = required - available_pipelines
+        if missing:
+            raise ValueError(
+                f"Strategy '{strategy.metadata.name}' requires unknown pipelines: {sorted(missing)}."
+                f"Available pipelines: {sorted(available_pipelines)}"
+            )
         self._strategy = strategy
         self._filters = list(filters) if filters else []
 

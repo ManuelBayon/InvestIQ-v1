@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Protocol, FrozenSet
 
@@ -17,12 +17,15 @@ class StrategyMetadata:
 
     price_type: MarketField
     required_fields: FrozenSet[MarketField]
-    produced_features: FrozenSet[str]
+    required_pipelines: FrozenSet[str]
+    required_features: FrozenSet[str]
 
     component_type: str = "STRATEGY"
-    created_at: datetime = datetime.now()
+    created_at: datetime = field(default_factory=datetime.now)
 
 class Strategy(Protocol):
+
     metadata: StrategyMetadata
+
     def decide(self, view: BacktestView) -> Decision:
         ...

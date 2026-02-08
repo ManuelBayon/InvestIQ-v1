@@ -10,4 +10,7 @@ class StopLoss(Filter):
             view: BacktestView,
             decision: Decision
     ) -> Decision:
+        """
+        To complete...
+        """
         ...

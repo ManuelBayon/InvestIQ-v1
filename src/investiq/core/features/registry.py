@@ -28,6 +28,10 @@ class FeaturePipelineRegistry:
             ) from e
 
     @classmethod
+    def all(cls) -> list[type[FeaturePipeline]]:
+        return list(cls._registry.values())
+
+    @classmethod
     def names(cls) -> list[str]:
         return list(cls._registry)
 

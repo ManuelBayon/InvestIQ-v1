@@ -21,6 +21,7 @@ from investiq.utilities.logger.setup import init_base_logger
 from investiq.runs.builder import bootstrap_backtest_engine
 from investiq_app.experiments.config import BacktestConfig
 
+import investiq_research.features.SMA
 
 @dataclass
 class BacktestBundle:
@@ -37,7 +38,7 @@ class FutureCME:
 def build_experiment(config: BacktestConfig) -> BacktestBundle:
 
     # 0. Init base logger
-    init_base_logger(debug=False)
+    init_base_logger(debug=config.debug)
     logger_factory = LoggerFactory(
         engine_type="Backtest",
         run_id="0841996",

@@ -121,5 +121,5 @@ class FeatureStore:
                 f"known={sorted(self._pipelines)}"
             )
 
-    def list_pipeline_names(self) -> list[str]:
-        return list(self._pipelines)
+    def pipeline_names(self) -> frozenset[str]:
+        return frozenset(self._pipelines)
