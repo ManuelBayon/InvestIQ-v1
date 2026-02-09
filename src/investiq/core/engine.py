@@ -3,6 +3,7 @@ import pandas as pd
 from investiq.api.backtest import BacktestView, BacktestInput
 from investiq.api.execution import ExecutionView, RunResult
 from investiq.api.market import MarketEvent
+from investiq.core.execution_planner import ExecutionPlanner
 from investiq.core.features.store import FeatureStore
 from investiq.core.invariants import BacktestInvariantError
 from investiq.core.market_store import MarketStore
@@ -19,6 +20,7 @@ class BacktestEngine:
             self,
             logger_factory: LoggerFactory,
             strategy_orchestrator: StrategyOrchestrator,
+            execution_planner: ExecutionPlanner,
             transition_engine: TransitionEngine,
             portfolio: Portfolio,
             market_store: MarketStore | None = None,
@@ -26,6 +28,7 @@ class BacktestEngine:
     ):
         self._logger = logger_factory.child("BacktestEngine").get()
         self._strategy_orchestrator = strategy_orchestrator
+        self._execution_planner = execution_planner
         self._transition_engine = transition_engine
         self._portfolio = portfolio
         self._market = market_store or MarketStore()
@@ -54,15 +57,16 @@ class BacktestEngine:
             execution=self._execution_view(),
         )
 
-        # 2. Run decision pipeline
+        # 2. Run decision and planner pipeline
         decision = self._strategy_orchestrator.run(view=view)
+        plan = self._execution_planner.plan(view=view, decision=decision)
 
-        if decision.timestamp != view.market.timestamp:
+        if plan.timestamp != view.market.timestamp:
             raise BacktestInvariantError("Decision timestamp must match market timestamp")
 
         # 4) Pure transition computation
         ops = self._transition_engine.process(
-            decision=decision,
+            plan=plan,
             current_position=view.execution.current_position,
             fifo_queues=self._portfolio.fifo_queues,
         )

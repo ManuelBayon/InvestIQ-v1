@@ -1,4 +1,5 @@
 from investiq.api.execution import Decision
+from investiq.api.planner import ExecutionPlan
 from investiq.execution.transition.fifo.resolver import FIFOResolver
 from investiq.utilities.logger.factory import LoggerFactory
 from investiq.execution.transition.enums import FIFOSide, TransitionType
@@ -26,7 +27,7 @@ class TransitionEngine:
 
     def process(
             self,
-            decision: Decision,
+            plan: ExecutionPlan,
             current_position : float,
             fifo_queues : dict[FIFOSide, list[FIFOPosition]],
     ) -> list[FIFOOperation]:
@@ -34,13 +35,13 @@ class TransitionEngine:
         # 1. Build context
         key = compute_key(
             current_position=current_position,
-            target_position=decision.target_position
+            target_position=plan.target_position
         )
         # 2. Get the transition rule and resolve transition
         rule: TransitionRule = self._transition_rule_factory.create(key=key)
         transition_type: TransitionType = rule.classify(
             current_position=current_position,
-            target_position=decision.target_position
+            target_position=plan.target_position
         )
         # 3. Get the transition strategy and resolve the atomic actions
         strategy : TransitionStrategy = self._transition_strategy_factory.create(
@@ -48,21 +49,21 @@ class TransitionEngine:
         )
         atomic_actions: list[AtomicAction] = strategy.resolve(
             current_position=current_position,
-            target_position=decision.target_position,
-            timestamp=decision.timestamp
+            target_position=plan.target_position,
+            timestamp=plan.timestamp
         )
         # 4. Resolve fifo operations
         fifo_operations: list[FIFOOperation] = self._fifo_resolver.resolve(
             actions=atomic_actions,
             fifo_queues=fifo_queues,
-            execution_price=decision.execution_price
+            execution_price=plan.execution_price
         )
         # 5.Build Audit Log
         log_entry = TransitionLog(
             state=key.state,
             event=key.event,
             current_position=current_position,
-            target_position=decision.target_position,
+            target_position=plan.target_position,
             rule_name=rule.NAME,
             transition_strategy=strategy.NAME,
             transition_type=transition_type.name,

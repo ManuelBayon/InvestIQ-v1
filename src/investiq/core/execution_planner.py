@@ -1,17 +1,18 @@
+
+from typing import Protocol
+
 from investiq.api.backtest import BacktestView
 from investiq.api.execution import Decision
-from investiq.api.filter import Filter, FilterMetadata
 from investiq.api.planner import ExecutionPlan
 
-
-class StopLoss(Filter):
-    metadata: FilterMetadata
-    def apply(
+class ExecutionPlanner(Protocol):
+    """
+    Turn a Decision into an ExecutionPlan.
+    """
+    def plan(
             self,
+            *,
             view: BacktestView,
-            plan: Decision
+            decision: Decision
     ) -> ExecutionPlan:
-        """
-        To complete...
-        """
         ...

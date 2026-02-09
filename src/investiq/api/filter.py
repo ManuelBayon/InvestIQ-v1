@@ -7,6 +7,7 @@ from typing import FrozenSet, Protocol
 from investiq.api.backtest import BacktestView
 from investiq.api.execution import Decision
 from investiq.api.market import MarketField
+from investiq.api.planner import ExecutionPlan
 
 
 @dataclass(frozen=True)
@@ -25,4 +26,8 @@ class FilterMetadata:
 
 class Filter(Protocol):
     metadata: FilterMetadata
-    def apply(self, view: BacktestView, decision: Decision) -> Decision: ...
+    def apply(
+            self,
+            view: BacktestView,
+            plan: ExecutionPlan
+    ) -> ExecutionPlan: ...

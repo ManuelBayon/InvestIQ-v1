@@ -1,7 +1,7 @@
 from investiq.api.filter import Filter
 from investiq.api.strategy import Strategy
 from investiq.core.engine import BacktestEngine
-from investiq.core.features.registry import FeaturePipelineRegistry
+from investiq.core.execution_planner import ExecutionPlanner
 from investiq.core.features.store import FeatureStore
 
 from investiq.execution.portfolio.portfolio import Portfolio
@@ -13,8 +13,9 @@ from investiq.utilities.logger.factory import LoggerFactory
 def bootstrap_backtest_engine(
         logger_factory: LoggerFactory,
         strategy: Strategy,
-        initial_cash: float,
-        filters: list[Filter] | None = None
+        execution_planner: ExecutionPlanner,
+        filters: list[Filter] | None = None,
+        initial_cash: float = 100_000,
 ) -> BacktestEngine:
 
     feature_store = FeatureStore(logger=logger_factory.child("Feature store").get())
@@ -39,6 +40,7 @@ def bootstrap_backtest_engine(
     return BacktestEngine(
         logger_factory=logger_factory,
         strategy_orchestrator=strategy_orchestrator,
+        execution_planner=execution_planner,
         transition_engine=transition_engine,
         portfolio=portfolio,
     )

@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from investiq.api.filter import Filter
 from investiq.api.instruments import AssetClass
 from investiq.api.strategy import Strategy
+from investiq.core.execution_planner import ExecutionPlanner
 from investiq.data.legagy_data_engine.enums import BarSize
 
 
@@ -14,5 +15,6 @@ class BacktestConfig:
     duration_setting : str
     bar_size_setting : BarSize
     strategy : Strategy
+    execution_planner: ExecutionPlanner
     filters : list[Filter] | None
     initial_cash : int

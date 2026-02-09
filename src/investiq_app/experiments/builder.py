@@ -21,8 +21,6 @@ from investiq.utilities.logger.setup import init_base_logger
 from investiq.runs.builder import bootstrap_backtest_engine
 from investiq_app.experiments.config import BacktestConfig
 
-import investiq_research.features.SMA
-
 @dataclass
 class BacktestBundle:
     logger_factory: LoggerFactory
@@ -72,6 +70,7 @@ def build_experiment(config: BacktestConfig) -> BacktestBundle:
     backtest_engine: BacktestEngine = bootstrap_backtest_engine(
         logger_factory=logger_factory,
         strategy=config.strategy,
+        execution_planner=config.execution_planner,
         filters=config.filters,
         initial_cash=config.initial_cash
     )
