@@ -3,10 +3,10 @@ from collections.abc import Sequence
 
 from typing import Final
 
-from investiq.api.feature import FeatureView
+from investiq.api.feature import FeatureSnapshot
 from investiq.core.features.api import FeaturePipeline
 from investiq.core.features.registry import FeaturePipelineRegistry
-from investiq.core.market_store import MarketStore
+from investiq.core.market_state_builder import MarketStateBuilder
 from investiq.utilities.logger.protocol import LoggerProtocol
 
 
@@ -85,7 +85,7 @@ class FeatureStore:
         if self.keep_history:
             self._history[name].append(v)
 
-    def ingest(self, market_store: MarketStore) -> None:
+    def ingest(self, market_store: MarketStateBuilder) -> None:
         """
          Run all pipelines once for the given market snapshot.
          This method is called from the Strategy orchestrator.
@@ -97,7 +97,7 @@ class FeatureStore:
                 feature_store=self
             )
 
-    def view(self, snapshot_history: bool = True) -> FeatureView:
+    def view(self, snapshot_history: bool = True) -> FeatureSnapshot:
         """
         Return a snapshot of current feature values, history, and readiness.
         If `snapshot_history` is True, history is copied as immutable tuples;
@@ -107,7 +107,7 @@ class FeatureStore:
             hist = {k: tuple(v) for k, v in self._history.items()}
         else:
             hist = self._history
-        return FeatureView(
+        return FeatureSnapshot(
             values=dict(self._values),
             history=hist,
             pipeline_ready=dict(self._pipelines_ready),

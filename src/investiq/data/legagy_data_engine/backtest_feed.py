@@ -2,7 +2,7 @@ from collections.abc import Iterator
 
 import pandas as pd
 
-from investiq.api.market import MarketEvent, OHLCV
+from investiq.api.market import MarketDataEvent, OHLCV
 from investiq.data.legagy_data_engine.enums import BarSize
 from investiq.utilities.logger.protocol import LoggerProtocol
 
@@ -19,7 +19,7 @@ class DataFrameBacktestFeed:
         self._symbol = symbol
         self._bar_size = bar_size
 
-    def __iter__(self) -> Iterator[MarketEvent]:
+    def __iter__(self) -> Iterator[MarketDataEvent]:
         df = self._df
 
         if "timestamp" in df.columns:
@@ -52,7 +52,7 @@ class DataFrameBacktestFeed:
             if not (l <= min(o, c) and max(o, c) <= h):
                 raise ValueError(f"Invalid OHLC at {ts}: o={o} h={h} l={l} c={c}")
 
-            yield MarketEvent(
+            yield MarketDataEvent(
                 timestamp=ts,
                 bar=OHLCV(open=o, high=h, low=l, close=c, volume=v),
                 symbol=self._symbol,

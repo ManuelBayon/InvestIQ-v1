@@ -45,15 +45,15 @@ class OHLCV:
             yield k, getattr(self, k)
 
 @dataclass(frozen=True)
-class MarketEvent:
+class MarketDataEvent:
     timestamp: pd.Timestamp
     bar: OHLCV
     symbol: str | None = None
     bar_size: str | None = None
 
 @dataclass(frozen=True)
-class MarketView:
-    snapshot: MarketEvent
+class MarketSate:
+    snapshot: MarketDataEvent
     history: Mapping[MarketField, Sequence[float]]
     @property
     def timestamp(self) -> pd.Timestamp:

@@ -1,4 +1,3 @@
-
 from typing import Protocol
 
 from investiq.api.backtest import BacktestView

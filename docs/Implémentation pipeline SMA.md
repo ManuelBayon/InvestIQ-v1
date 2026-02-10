@@ -17,7 +17,7 @@ from typing import ClassVar
 from investiq.api.market import MarketField
 from investiq.core.features.registry import register_feature_pipeline
 from investiq.core.features.api import FeaturePipeline
-from investiq.core.market_store import MarketStore
+from investiq.core.market_state_builder import MarketStore
 from investiq.core.features.store import FeatureStore
 
 

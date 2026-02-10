@@ -3,7 +3,7 @@ from typing import Mapping, Sequence
 
 
 @dataclass(frozen=True)
-class FeatureView:
+class FeatureSnapshot:
     """
     Read-only snapshot of features at current timestamp.
 

@@ -1,6 +1,6 @@
 from typing import ClassVar, Protocol, TYPE_CHECKING
 
-from investiq.core.market_store import MarketStore
+from investiq.core.market_state_builder import MarketStateBuilder
 
 if TYPE_CHECKING:
     from investiq.core.features.store import FeatureStore
@@ -18,7 +18,7 @@ class FeaturePipeline(Protocol):
         ...
     def update(
             self,
-            market_store: MarketStore,
+            market_store: MarketStateBuilder,
             feature_store: "FeatureStore"
     ) -> None:
         ...

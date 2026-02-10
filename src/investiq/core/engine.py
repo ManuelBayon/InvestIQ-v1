@@ -2,11 +2,11 @@ import pandas as pd
 
 from investiq.api.backtest import BacktestView, BacktestInput
 from investiq.api.execution import ExecutionView, RunResult
-from investiq.api.market import MarketEvent
+from investiq.api.market import MarketDataEvent
 from investiq.core.execution_planner import ExecutionPlanner
 from investiq.core.features.store import FeatureStore
 from investiq.core.invariants import BacktestInvariantError
-from investiq.core.market_store import MarketStore
+from investiq.core.market_state_builder import MarketStateBuilder
 from investiq.utilities.logger.factory import LoggerFactory
 from investiq.execution.portfolio.portfolio import Portfolio
 from investiq.execution.transition.engine import TransitionEngine
@@ -23,7 +23,7 @@ class BacktestEngine:
             execution_planner: ExecutionPlanner,
             transition_engine: TransitionEngine,
             portfolio: Portfolio,
-            market_store: MarketStore | None = None,
+            market_store: MarketStateBuilder | None = None,
             feature_store: FeatureStore | None = None,
     ):
         self._logger = logger_factory.child("BacktestEngine").get()
@@ -31,7 +31,7 @@ class BacktestEngine:
         self._execution_planner = execution_planner
         self._transition_engine = transition_engine
         self._portfolio = portfolio
-        self._market = market_store or MarketStore()
+        self._market = market_store or MarketStateBuilder()
         self._feature_store = feature_store or FeatureStore(logger=logger_factory.child("FeatureStore").get())
 
     def _execution_view(self) -> ExecutionView:
@@ -44,7 +44,7 @@ class BacktestEngine:
 
     def step(
             self,
-            event: MarketEvent,
+            event: MarketDataEvent,
     ) -> StepRecord:
 
         self._market.ingest(event=event)
@@ -118,7 +118,7 @@ class BacktestEngine:
         )
 
     @property
-    def market_store(self) -> MarketStore:
+    def market_store(self) -> MarketStateBuilder:
         return self._market
 
     @property

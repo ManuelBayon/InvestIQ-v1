@@ -5,7 +5,7 @@ from typing import ClassVar
 from investiq.api.market import MarketField
 from investiq.core.features.registry import register_feature_pipeline
 from investiq.core.features.store import FeatureStore
-from investiq.core.market_store import MarketStore
+from investiq.core.market_state_builder import MarketStateBuilder
 
 @dataclass
 class _SMAState:
@@ -76,7 +76,7 @@ class SMAPipeline:
     def update(
             self,
             *,
-            market_store: MarketStore,
+            market_store: MarketStateBuilder,
             feature_store: FeatureStore
     ) -> None:
         """

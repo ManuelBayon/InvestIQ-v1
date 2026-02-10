@@ -38,7 +38,6 @@ class StrategyOrchestrator:
             "strategy": {self._strategy.metadata.name: d0.diagnostics},
             "filters": []
         }
-
         d = d0
         for f in self._filters:
             d = f.apply(view=view, decision=d)
