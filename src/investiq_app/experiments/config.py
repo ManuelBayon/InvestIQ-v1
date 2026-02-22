@@ -4,7 +4,7 @@ from investiq.api.filter import Filter
 from investiq.api.instruments import AssetClass
 from investiq.api.strategy import Strategy
 from investiq.core.execution_planner import ExecutionPlanner
-from investiq.data.legagy_data_engine.enums import BarSize
+from investiq.market_data import BarSize
 
 
 @dataclass

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from investiq.data.market_data import (
+from investiq.market_data import (
     ContFutureSpec,
     InstrumentID,
     HistoricalDataService,
