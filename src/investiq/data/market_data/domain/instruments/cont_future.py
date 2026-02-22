@@ -1,0 +1,25 @@
+from dataclasses import dataclass
+
+from investiq.data.market_data.domain.enums import (
+    AssetType,
+    Exchange,
+    Currency,
+    WhatToShow,
+)
+from investiq.data.market_data.domain.instrument_id import InstrumentID
+from investiq.data.market_data.domain.instruments.base import InstrumentSpec
+
+
+@dataclass(frozen=True)
+class ContFutureSpec(InstrumentSpec):
+    symbol: str
+    symbol_id: InstrumentID
+    exchange: Exchange
+    currency: Currency
+    asset_type: AssetType = AssetType.CONT_FUTURE
+
+    def default_what_to_show(self) -> WhatToShow:
+        return WhatToShow.MIDPOINT
+
+    def display_name(self) -> str:
+        return self.symbol

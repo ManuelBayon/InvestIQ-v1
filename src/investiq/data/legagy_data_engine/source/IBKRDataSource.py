@@ -1,12 +1,12 @@
 import pandas as pd
 
-from investiq.data.legagy_data_engine.Errors import TWSConnectionError
+from investiq.data.legagy_data_engine.errors import TWSConnectionError
 from investiq.data.legagy_data_engine.source.AbstractDataSource import AbstractDataSource
 from investiq.data.legagy_data_engine.instruments.AbstractInstrumentSettings import InstrumentSettings
 from investiq.data.legagy_data_engine.request.IBKRRequestSettings import IBKRRequestSettings
 
 from investiq.data.legagy_data_engine.connection.TWSConnection import TWSConnection
-from investiq.data.legagy_data_engine.HistoricalRequestBuilder import HistoricalRequestBuilder
+from investiq.data.legagy_data_engine.request_builder import HistoricalRequestBuilder
 from investiq.utilities.logger.protocol import LoggerProtocol
 
 

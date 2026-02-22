@@ -4,10 +4,10 @@ from datetime import datetime
 from investiq.api.backtest import BacktestInput
 from investiq.api.instruments import InstrumentSpec
 from investiq.core.engine import BacktestEngine
-from investiq.data.legagy_data_engine.HistoricalDataEngine import HistoricalDataEngine
+from investiq.data.legagy_data_engine.engine import HistoricalDataEngine
 from investiq.data.legagy_data_engine.backtest_feed import DataFrameBacktestFeed
 from investiq.data.legagy_data_engine.instruments.ContFutureSettings import ContFutureSettings
-from investiq.data.legagy_data_engine.instruments.InstrumentID import InstrumentID
+from investiq.data.legagy_data_engine.instruments.instrument_id import InstrumentID
 from investiq.export_engine.registries.config import ExportKey, ExportOptions
 from investiq.export_engine.runner import BacktestExportRunner
 

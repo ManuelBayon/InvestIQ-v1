@@ -3,7 +3,6 @@ from investiq.api.instruments import AssetClass, FutureCME
 from investiq.data.legagy_data_engine.enums import BarSize
 from investiq_app.experiments.config import BacktestConfig
 from investiq_research.execution_planners.fixed_pct_oco import FixedPctOCOPlanner
-from investiq_research.execution_planners.no_brackets import NoBracketsPlanner
 
 from investiq_research.strategies.MovingAverageCrossStrategy import MovingAverageCrossStrategy
 

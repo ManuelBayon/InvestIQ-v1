@@ -4,7 +4,7 @@ from ib_insync import ContFuture, Contract
 
 from investiq.data.legagy_data_engine.enums import Exchange, Currency, AssetType, WhatToShow
 from investiq.data.legagy_data_engine.instruments.AbstractInstrumentSettings import InstrumentSettings
-from investiq.data.legagy_data_engine.instruments.InstrumentID import InstrumentID
+from investiq.data.legagy_data_engine.instruments.instrument_id import InstrumentID
 
 
 @dataclass

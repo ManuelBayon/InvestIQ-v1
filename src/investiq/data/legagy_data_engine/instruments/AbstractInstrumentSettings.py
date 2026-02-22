@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, Protocol
 
 from investiq.data.legagy_data_engine.enums import AssetType, Exchange
-from investiq.data.legagy_data_engine.instruments.InstrumentID import InstrumentID
+from investiq.data.legagy_data_engine.instruments.instrument_id import InstrumentID
 
 class BrokerContract(Protocol):
     """Generic interface for a broker contract (IBKR, Binance, FIX...)."""

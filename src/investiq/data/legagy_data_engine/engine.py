@@ -3,7 +3,7 @@ import pandas as pd
 from investiq.data.legagy_data_engine.source.AbstractDataSource import AbstractDataSource
 from investiq.data.legagy_data_engine.instruments.AbstractInstrumentSettings import InstrumentSettings
 from investiq.data.legagy_data_engine.request.AbstractRequestSettings import RequestSettings
-from investiq.data.legagy_data_engine.HistoricalDataLoader import HistoricalDataLoader
+from investiq.data.legagy_data_engine.loader import HistoricalDataLoader
 from investiq.utilities.logger.protocol import LoggerProtocol
 
 

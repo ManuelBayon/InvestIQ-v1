@@ -1,6 +1,6 @@
 from ib_insync import IB
 
-from investiq.data.legagy_data_engine.Errors import TWSConnectionError
+from investiq.data.legagy_data_engine.errors import TWSConnectionError
 from investiq.data.legagy_data_engine.connection.ConnectionConfig import ConnectionConfig
 
 from investiq.utilities.logger.protocol import LoggerProtocol
