@@ -15,6 +15,7 @@ from .domain.instruments.cont_future import ContFutureSpec
 from .domain.instruments.forex import ForexSpec
 
 from .domain.requests.base import RequestSpec
+from .domain.requests.historical import HistoricalRequestSpec
 
 
 # ===== ENGINE =====
@@ -52,6 +53,7 @@ __all__ = [
     "ContFutureSpec",
     "ForexSpec",
     "RequestSpec",
+    "HistoricalRequestSpec",
 
     # engine
     "HistoricalDataService",

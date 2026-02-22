@@ -1,20 +1,25 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+from investiq.data.market_data import (
+    ContFutureSpec,
+    InstrumentID,
+    HistoricalDataService,
+    DataFrameBacktestFeed,
+    TWSConnection,
+    ConnectionConfig,
+    IBKRHistoricalDataSource,
+    Exchange,
+    Currency,
+    HistoricalRequestSpec,
+)
+
 from investiq.api.backtest import BacktestInput
 from investiq.api.instruments import InstrumentSpec
 from investiq.core.engine import BacktestEngine
-from investiq.data.legagy_data_engine.engine import HistoricalDataEngine
-from investiq.data.legagy_data_engine.backtest_feed import DataFrameBacktestFeed
-from investiq.data.legagy_data_engine.instruments.ContFutureSettings import ContFutureSettings
-from investiq.data.legagy_data_engine.instruments.instrument_id import InstrumentID
+
 from investiq.export_engine.registries.config import ExportKey, ExportOptions
 from investiq.export_engine.runner import BacktestExportRunner
-
-from investiq.data.legagy_data_engine.connection.TWSConnection import TWSConnection
-
-from investiq.data.legagy_data_engine.request.IBKRRequestSettings import IBKRRequestSettings
-from investiq.data.legagy_data_engine.source.IBKRDataSource import IBKRDataSource
 
 from investiq.utilities.logger.factory import LoggerFactory
 from investiq.utilities.logger.setup import init_base_logger
@@ -42,29 +47,36 @@ def build_experiment(config: BacktestConfig) -> BacktestBundle:
         run_id="0841996",
     )
 
-    # 1. Configure and load historical data
-    instrument_settings = ContFutureSettings(
+    # 1. Configure and load historical data (V2)
+
+    instrument_spec = ContFutureSpec(
         symbol=config.symbol,
-        symbol_id=InstrumentID.from_symbol(config.symbol)
+        symbol_id=InstrumentID.from_symbol(config.symbol),
+        exchange=Exchange.CME,
+        currency=Currency.USD,
     )
-    request_settings = IBKRRequestSettings(
-        duration=config.duration_setting,
-        bar_size_setting=config.bar_size_setting
-    )
+
+    request_spec = HistoricalRequestSpec(
+    duration=config.duration_setting,
+    bar_size=config.bar_size_setting,
+)
+
     tws_connection = TWSConnection(
         logger=logger_factory.child("TWS Connection").get(),
+        config=ConnectionConfig.paper(),
     )
-    data_source = IBKRDataSource(
+
+    data_source = IBKRHistoricalDataSource(
         logger=logger_factory.child("InteractiveBroker DataSource").get(),
-        connection=tws_connection
+        connection=tws_connection,
     )
-    hist_data_engine: HistoricalDataEngine = HistoricalDataEngine(
-        logger=logger_factory.child("Historical Data Engine").get(),
-        instrument_settings=instrument_settings,
-        request_settings=request_settings,
-        data_source=data_source
+
+    data_service = HistoricalDataService(
+        logger=logger_factory.child("Historical Data Service").get(),
+        data_source=data_source,
     )
-    df = hist_data_engine.load_data()
+
+    df = data_service.load(instrument_spec, request_spec)
 
     # 2. Bootstrap Backtest Engine
     backtest_engine: BacktestEngine = bootstrap_backtest_engine(
